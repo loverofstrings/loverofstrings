@@ -4,6 +4,14 @@
 - 💞️ I’m looking to collaborate on ...social media spamming
 - 📫 How to reach me ...
 
+### Music video generator
+
+Full-length videos from a track + image + lyrics + genre — theme, story, and cut speed come from the song (and your overrides). See [`music_video/README.md`](music_video/README.md).
+
+```bash
+python -m music_video -t song.mp4 -i cover.jpg -l lyrics.txt -g hip-hop -o out.mp4
+```
+
 <!---
 loverofstrings/loverofstrings is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.

@@ -13,7 +13,8 @@ class AnimationError(RuntimeError):
 
 
 def fal_available() -> bool:
-    return bool(os.environ.get("FAL_API_KEY") or os.environ.get("FAL_KEY"))
+    # Seedance / fal.ai — .env.example uses FAL_KEY; accept FAL_API_KEY alias
+    return bool(os.environ.get("FAL_KEY") or os.environ.get("FAL_API_KEY"))
 
 
 def animate_still(

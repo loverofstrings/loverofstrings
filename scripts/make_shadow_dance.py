@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Shadow Dance: storyboard stills → animate → full music video."""
+"""Build Shadow Dance with Seedance 2.0 animated scenes."""
 
 from __future__ import annotations
 
@@ -10,19 +10,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from music_video.animate import AnimationError, fal_available  # noqa: E402
-from music_video.assemble_animated import (  # noqa: E402
-    fallback_camera_motion_render,
-    generate_animated,
-)
-from music_video.presets import UserCreativeInput
+from music_video.animate import motion_prompt  # noqa: E402
+from music_video.assemble_animated import _concat_and_mux, _fit_clip  # noqa: E402
+from music_video.audio import probe  # noqa: E402
+from music_video.presets import UserCreativeInput  # noqa: E402
+from music_video.seedance import SeedanceError, download_video, fal_key_available, image_to_video  # noqa: E402
+from music_video.story import build_storyboard  # noqa: E402
+from music_video.theme import build_theme, load_lyrics  # noqa: E402
+from music_video.timing import expand_shots, retime_scenes_by_music  # noqa: E402
 
 
 def main() -> int:
     plan = json.loads((ROOT / "examples/shadow_dance/scene_plan.json").read_text())
-    order = (ROOT / "examples/shadow_dance/scenes_order.txt").read_text().splitlines()
-    images = [Path(p) for p in order if p.strip()]
+    order = [p for p in (ROOT / "examples/shadow_dance/scenes_order.txt").read_text().splitlines() if p.strip()]
+    images = [Path(p) for p in order]
     assert len(images) == 28, len(images)
+    meta = plan["scenes"]
 
     user = UserCreativeInput(
         theme="Cyberpunk neon retro-hell digital pop art with thick outlines — shadow dance, let it fall",
@@ -34,46 +37,86 @@ def main() -> int:
         transition="cut",
         title="Shadow Dance",
         scene_count=28,
-        extra={"star_ratio": 0.35, "allow_shake": False},
     )
 
-    out = ROOT / "output/shadow_dance/Shadow_Dance_music_video.mp4"
-    meta = plan["scenes"]
+    track = ROOT / "assets/Shadow_Dance.mp3"
+    lyrics = load_lyrics(str(ROOT / "examples/shadow_dance/lyrics.txt"))
+    audio = probe(track)
+    theme = build_theme("electronic", lyrics, user)
+    board = build_storyboard(lyrics, theme, audio.duration, user, len(images))
+    board = retime_scenes_by_music(board, audio.energy, theme)
+    shots = expand_shots(
+        board, theme, audio.bpm_estimate, fps=30, one_shot_per_scene=True, energy=audio.energy
+    )
 
-    if fal_available():
-        print("Animating 28 scenes with fal image-to-video…")
-        path = generate_animated(
-            track=ROOT / "assets/Shadow_Dance.mp3",
-            images=images,
-            lyrics=str(ROOT / "examples/shadow_dance/lyrics.txt"),
-            genre="electronic",
-            output=out,
-            scene_meta=meta,
-            user=user,
-            width=1080,
-            height=1920,
-            clips_dir=ROOT / "output/shadow_dance/clips",
+    if not fal_key_available():
+        print(
+            "ERROR: FAL_KEY not set. Seedance 2.0 needs fal.ai credentials "
+            "(see vendor/seedance-2.0-api/.env.example). "
+            "Add Cloud Agent secret FAL_KEY and rerun.",
+            file=sys.stderr,
         )
-        print(f"Wrote animated video: {path}")
-        return 0
+        return 2
 
-    print("FAL_API_KEY missing — cannot animate scenes yet.", file=sys.stderr)
-    print("Add FAL_API_KEY to Cloud Agent secrets, then rerun this script.", file=sys.stderr)
-    # Still produce a less-shake camera preview so assets are validated
-    preview = ROOT / "output/shadow_dance/Shadow_Dance_preview_camera.mp4"
-    fallback_camera_motion_render(
-        track=ROOT / "assets/Shadow_Dance.mp3",
-        images=images,
-        lyrics=str(ROOT / "examples/shadow_dance/lyrics.txt"),
-        genre="electronic",
-        output=preview,
-        user=user,
-        width=1080,
-        height=1920,
-    )
-    print(f"Wrote camera-motion PREVIEW only (not final): {preview}")
-    return 2
+    clips_root = ROOT / "output/shadow_dance/seedance_clips"
+    clips_root.mkdir(parents=True, exist_ok=True)
+    fitted = []
+
+    for i, shot in enumerate(shots):
+        img = images[shot.image_index % len(images)]
+        m = meta[i] if i < len(meta) else {"kind": "world", "beat": ""}
+        prompt = motion_prompt(m.get("beat", ""), m.get("kind", "world"), shot.motion)
+        # Slightly longer than needed so we can trim; Seedance min 4s
+        gen_dur = max(4, min(8, int(round(max(4.0, shot.duration)))))
+        raw = clips_root / f"raw_{i:02d}.mp4"
+        fit = clips_root / f"fit_{i:02d}.mp4"
+        if fit.exists() and fit.stat().st_size > 1000:
+            print(f"[{i+1}/28] reuse {fit.name}")
+            fitted.append(fit)
+            continue
+        print(f"[{i+1}/28] Seedance I2V {img.name} ({gen_dur}s, {shot.motion})…", flush=True)
+        url = image_to_video(
+            img,
+            prompt,
+            duration=gen_dur,
+            resolution="720p",
+            aspect_ratio="9:16",
+            generate_audio=False,  # we mux the song
+            fast=True,
+        )
+        download_video(url, raw)
+        _fit_clip(raw, fit, shot.duration, 1080, 1920)
+        fitted.append(fit)
+        print(f"  -> {fit.name}", flush=True)
+
+    out = ROOT / "output/shadow_dance/Shadow_Dance_seedance.mp4"
+    print("Concat + mux full track…", flush=True)
+    _concat_and_mux(fitted, track, out, ass_path=None)
+    plan_out = {
+        "title": "Shadow Dance",
+        "engine": "seedance-2.0-fast-image-to-video",
+        "duration": board.duration,
+        "scenes": [
+            {
+                "index": i,
+                "kind": meta[i]["kind"],
+                "beat": meta[i]["beat"],
+                "start": board.scenes[i].start,
+                "end": board.scenes[i].end,
+                "motion": shots[i].motion,
+            }
+            for i in range(len(board.scenes))
+        ],
+        "output": str(out),
+    }
+    out.with_suffix(".plan.json").write_text(json.dumps(plan_out, indent=2))
+    print(f"Wrote {out}")
+    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except SeedanceError as exc:
+        print(f"Seedance error: {exc}", file=sys.stderr)
+        raise SystemExit(1)

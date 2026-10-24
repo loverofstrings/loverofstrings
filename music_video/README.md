@@ -99,8 +99,20 @@ When the musician’s photo is only a **reference** (not the whole video):
 
 `--scenes 28` locks exactly 28 visual scenes across the full track. `--star-ratio 0.35` records the intended starring fraction for planning.
 
+## Animated pipeline (fal.ai)
+
+For AI stills + image-to-video (e.g. Ramon neon retrowave):
+
+1. Set `FAL_KEY` (or `FAL_API_KEY`) from [fal.ai keys](https://fal.ai/dashboard/keys)
+2. `pip install -r requirements.txt` (includes `fal-client`)
+3. Run `python scripts/make_ramon.py`
+
+Stills use `fal-ai/nano-banana-2` (and `/edit` with hero refs). Clips use
+`bytedance/seedance-2.0/fast/image-to-video`. See [`examples/ramon/README.md`](../examples/ramon/README.md).
+
 ## Requirements
 
 - Python 3.10+
 - `ffmpeg` and `ffprobe` on `PATH`
 - `Pillow` (see `requirements.txt`)
+- `fal-client` + `FAL_KEY` for animated / AI-generated pipelines

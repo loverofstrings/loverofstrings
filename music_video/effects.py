@@ -19,15 +19,15 @@ EFFECTS: dict[str, dict[str, object]] = {
     "orbit_drift": {"band": "mid", "zoom_mul": 0.95, "shake": 0.02},
     "pulse_zoom": {"band": "mid", "zoom_mul": 1.1, "shake": 0.04},
     "push_in_pan": {"band": "mid", "zoom_mul": 1.15, "shake": 0.02},
-    # Hot — intense / chorus / dense lyrics
-    "punch_in": {"band": "hot", "zoom_mul": 1.35, "shake": 0.06},
-    "snap_zoom": {"band": "hot", "zoom_mul": 1.45, "shake": 0.08},
-    "shake_light": {"band": "hot", "zoom_mul": 1.0, "shake": 0.1},
-    "shake_hard": {"band": "hot", "zoom_mul": 1.15, "shake": 0.18},
-    "shake_zoom": {"band": "hot", "zoom_mul": 1.25, "shake": 0.14},
-    "whip_pan_left": {"band": "hot", "zoom_mul": 0.8, "shake": 0.1},
-    "whip_pan_right": {"band": "hot", "zoom_mul": 0.8, "shake": 0.1},
-    "crash_zoom": {"band": "hot", "zoom_mul": 1.55, "shake": 0.12},
+    # Hot — intense / chorus / dense lyrics (shake kept light — prefer punch/whip/zoom)
+    "punch_in": {"band": "hot", "zoom_mul": 1.35, "shake": 0.02},
+    "snap_zoom": {"band": "hot", "zoom_mul": 1.45, "shake": 0.02},
+    "shake_light": {"band": "hot", "zoom_mul": 1.0, "shake": 0.05},
+    "shake_hard": {"band": "hot", "zoom_mul": 1.15, "shake": 0.08},
+    "shake_zoom": {"band": "hot", "zoom_mul": 1.25, "shake": 0.06},
+    "whip_pan_left": {"band": "hot", "zoom_mul": 0.8, "shake": 0.03},
+    "whip_pan_right": {"band": "hot", "zoom_mul": 0.8, "shake": 0.03},
+    "crash_zoom": {"band": "hot", "zoom_mul": 1.55, "shake": 0.04},
 }
 
 _CALM = [k for k, v in EFFECTS.items() if v["band"] == "calm"]
@@ -44,8 +44,25 @@ def band_for_intensity(intensity: float) -> str:
     return "hot"
 
 
-def pick_effect(intensity: float, index: int, role: str = "") -> str:
-    """Choose a motion effect; rotate within the intensity band for variety."""
+# Prefer non-shake motions; shake only sparingly on hot peaks
+_HOT_PRIMARY = [
+    "punch_in",
+    "snap_zoom",
+    "crash_zoom",
+    "whip_pan_left",
+    "whip_pan_right",
+    "pulse_zoom",
+    "push_in_pan",
+    "diagonal_in",
+]
+_SHAKE_SPARSE = ("shake_light", "shake_zoom")  # omit shake_hard by default
+
+
+def pick_effect(intensity: float, index: int, role: str = "", *, allow_shake: bool = True) -> str:
+    """Choose a motion effect; rotate within the intensity band for variety.
+
+    Shake is used sparingly (about 1 in 8 hot picks) unless allow_shake is False.
+    """
     role_l = (role or "").lower()
     # Role nudges band
     if "chorus" in role_l or "hook" in role_l:
@@ -56,6 +73,10 @@ def pick_effect(intensity: float, index: int, role: str = "") -> str:
         intensity = max(0.0, intensity - 0.15)
 
     band = band_for_intensity(intensity)
+    if band == "hot":
+        if allow_shake and index % 8 == 0:
+            return _SHAKE_SPARSE[index % len(_SHAKE_SPARSE)]
+        return _HOT_PRIMARY[index % len(_HOT_PRIMARY)]
     pool = {"calm": _CALM, "mid": _MID, "hot": _HOT}[band]
     return pool[index % len(pool)]
 

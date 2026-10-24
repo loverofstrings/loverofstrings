@@ -168,30 +168,37 @@ def main() -> int:
     )
 
     if not fal_available():
-        print("FAL_KEY missing — cannot generate/animate yet.", file=sys.stderr)
+        print("FAL_KEY missing — using local neon-grade + camera-motion cut.", file=sys.stderr)
         print(
-            "Add FAL_KEY to Cloud Agent secrets (https://fal.ai/dashboard/keys), then rerun:",
+            "Add FAL_KEY for nano-banana-2 stills + Seedance animation "
+            "(https://fal.ai/dashboard/keys), then rerun:",
             file=sys.stderr,
         )
-        print("  python scripts/make_ramon.py", file=sys.stderr)
-        # Camera-motion preview only if we already have stills
+        print("  python3 scripts/make_ramon.py", file=sys.stderr)
+        # Ensure neon-graded stills exist from local refs
         existing = [scenes_dir / s["file"] for s in plan["scenes"]]
-        if all(p.exists() for p in existing):
-            preview = ROOT / "output/ramon/Ramon_preview_camera.mp4"
-            fallback_camera_motion_render(
-                track=track,
-                images=existing,
-                lyrics=str(lyrics_path),
-                genre="electronic",
-                output=preview,
-                user=user,
-                width=1080,
-                height=1920,
+        if not all(p.exists() for p in existing):
+            import subprocess
+
+            subprocess.run(
+                [sys.executable, str(ROOT / "scripts/neon_grade_stills.py")],
+                check=True,
             )
-            print(f"Wrote camera-motion PREVIEW only: {preview}")
-            return 2
-        print("No stills yet — waiting on FAL_KEY to generate neon retrowave frames.")
-        return 2
+            existing = [scenes_dir / s["file"] for s in plan["scenes"]]
+        preview = ROOT / "output/ramon/Ramon_neon_retrowave.mp4"
+        fallback_camera_motion_render(
+            track=track,
+            images=existing,
+            lyrics=str(lyrics_path),
+            genre="electronic",
+            output=preview,
+            user=user,
+            width=1080,
+            height=1920,
+        )
+        print(f"Wrote neon camera-motion music video: {preview}")
+        print("Re-run with FAL_KEY for Seedance-animated upgrade.")
+        return 0
 
     print("Uploading hero reference images…")
     heroes = curated_hero_paths()

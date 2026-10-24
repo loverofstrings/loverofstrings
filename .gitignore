@@ -8,3 +8,5 @@ venv/
 output/
 music_video_work/
 .DS_Store
+# Large raw upload dumps — curated copies live in assets/ramon/hero/
+assets/ramon/refs/

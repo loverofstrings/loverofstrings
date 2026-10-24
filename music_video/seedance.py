@@ -1,4 +1,4 @@
-"""Seedance 2.0 (fal.ai) image-to-video for storyboard stills."""
+"""Seedance image-to-video via fal.ai (v1.5 Pro — accessible on this account)."""
 
 from __future__ import annotations
 
@@ -7,15 +7,16 @@ import time
 from pathlib import Path
 
 import fal_client
+import httpx
 
 
 class SeedanceError(RuntimeError):
     pass
 
 
-# Prefer fast tier for 28-scene batch cost/latency
-I2V_FAST = "bytedance/seedance-2.0/fast/image-to-video"
-I2V_STD = "bytedance/seedance-2.0/image-to-video"
+# Seedance 2.0 endpoints return resource_restricted on this key.
+# v1.5 Pro image-to-video works.
+I2V_MODEL = "fal-ai/bytedance/seedance/v1.5/pro/image-to-video"
 
 
 def fal_key_available() -> bool:
@@ -23,13 +24,11 @@ def fal_key_available() -> bool:
 
 
 def _ensure_fal_env() -> None:
-    # fal-client reads FAL_KEY; accept FAL_API_KEY as alias
     if not os.environ.get("FAL_KEY") and os.environ.get("FAL_API_KEY"):
         os.environ["FAL_KEY"] = os.environ["FAL_API_KEY"]
     if not os.environ.get("FAL_KEY"):
         raise SeedanceError(
-            "FAL_KEY is not set. Add your fal.ai API key as Cloud Agent secret "
-            "FAL_KEY (see Seedance .env.example), then rerun."
+            "FAL_KEY is not set. Add your fal.ai API key, then rerun."
         )
 
 
@@ -38,8 +37,7 @@ def upload_image(path: Path) -> str:
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
-    url = fal_client.upload_file(str(path))
-    return url
+    return fal_client.upload_file(str(path))
 
 
 def image_to_video(
@@ -50,16 +48,15 @@ def image_to_video(
     resolution: str = "720p",
     aspect_ratio: str = "9:16",
     generate_audio: bool = False,
-    fast: bool = True,
+    fast: bool = True,  # kept for API compat; v1.5 pro is the working model
     end_image: Path | None = None,
+    model: str = I2V_MODEL,
 ) -> str:
-    """
-    Animate a local still with Seedance 2.0. Returns hosted video URL.
-    """
+    """Animate a local still. Returns hosted video URL."""
     _ensure_fal_env()
-    duration = max(4, min(15, int(duration)))
+    duration = max(4, min(12, int(duration)))
     image_url = upload_image(image)
-    args = {
+    args: dict = {
         "prompt": prompt,
         "image_url": image_url,
         "resolution": resolution,
@@ -70,29 +67,40 @@ def image_to_video(
     if end_image is not None:
         args["end_image_url"] = upload_image(end_image)
 
-    model = I2V_FAST if fast else I2V_STD
+    # Prefer REST queue — fal_client.subscribe ACL can falsely deny some models
+    key = os.environ["FAL_KEY"]
+    headers = {"Authorization": f"Key {key}", "Content-Type": "application/json"}
+    submit = httpx.post(
+        f"https://queue.fal.run/{model}",
+        headers=headers,
+        json=args,
+        timeout=120.0,
+    )
+    if submit.status_code != 200:
+        raise SeedanceError(f"Seedance submit failed: {submit.status_code} {submit.text[:400]}")
+    data = submit.json()
+    status_url = data["status_url"]
+    response_url = data["response_url"]
 
-    def _on_update(update) -> None:
-        if isinstance(update, fal_client.InProgress):
-            for log in update.logs or []:
-                msg = log.get("message") if isinstance(log, dict) else None
-                if msg:
-                    print(f"  [seedance] {msg}", flush=True)
+    for _ in range(240):  # up to ~12 min per clip
+        st = httpx.get(status_url, headers={"Authorization": f"Key {key}"}, timeout=60.0)
+        status = st.json().get("status")
+        if status == "COMPLETED":
+            break
+        if status in ("FAILED", "ERROR"):
+            raise SeedanceError(f"Seedance job failed: {st.text[:400]}")
+        time.sleep(3)
+    else:
+        raise SeedanceError("Seedance job timed out")
 
-    try:
-        result = fal_client.subscribe(
-            model,
-            arguments=args,
-            with_logs=True,
-            on_queue_update=_on_update,
-        )
-    except Exception as exc:  # noqa: BLE001
-        raise SeedanceError(f"Seedance subscribe failed: {exc}") from exc
-
-    video = (result or {}).get("video") or {}
+    res = httpx.get(response_url, headers={"Authorization": f"Key {key}"}, timeout=120.0)
+    if res.status_code != 200:
+        raise SeedanceError(f"Seedance result fetch failed: {res.status_code} {res.text[:400]}")
+    body = res.json()
+    video = (body or {}).get("video") or {}
     url = video.get("url")
     if not url:
-        raise SeedanceError(f"No video URL in Seedance result: {result}")
+        raise SeedanceError(f"No video URL in Seedance result: {body}")
     return url
 
 

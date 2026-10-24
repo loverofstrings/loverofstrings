@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build Shadow Dance with Seedance 2.0 animated scenes."""
+"""Build Shadow Dance with Seedance v1.5 Pro animated scenes."""
 
 from __future__ import annotations
 
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +19,30 @@ from music_video.seedance import SeedanceError, download_video, fal_key_availabl
 from music_video.story import build_storyboard  # noqa: E402
 from music_video.theme import build_theme, load_lyrics  # noqa: E402
 from music_video.timing import expand_shots, retime_scenes_by_music  # noqa: E402
+
+
+def _animate_one(args: tuple) -> tuple[int, Path]:
+    i, img, meta, shot, clips_root = args
+    raw = clips_root / f"raw_{i:02d}.mp4"
+    fit = clips_root / f"fit_{i:02d}.mp4"
+    if fit.exists() and fit.stat().st_size > 1000:
+        print(f"[{i+1}/28] reuse {fit.name}", flush=True)
+        return i, fit
+    prompt = motion_prompt(meta.get("beat", ""), meta.get("kind", "world"), shot.motion)
+    gen_dur = max(4, min(8, int(round(max(4.0, shot.duration)))))
+    print(f"[{i+1}/28] Seedance {img.name} ({gen_dur}s, {shot.motion})…", flush=True)
+    url = image_to_video(
+        img,
+        prompt,
+        duration=gen_dur,
+        resolution="720p",
+        aspect_ratio="9:16",
+        generate_audio=False,
+    )
+    download_video(url, raw)
+    _fit_clip(raw, fit, shot.duration, 1080, 1920)
+    print(f"[{i+1}/28] done {fit.name}", flush=True)
+    return i, fit
 
 
 def main() -> int:
@@ -50,51 +75,33 @@ def main() -> int:
     )
 
     if not fal_key_available():
-        print(
-            "ERROR: FAL_KEY not set. Seedance 2.0 needs fal.ai credentials "
-            "(see vendor/seedance-2.0-api/.env.example). "
-            "Add Cloud Agent secret FAL_KEY and rerun.",
-            file=sys.stderr,
-        )
+        print("ERROR: FAL_KEY not set.", file=sys.stderr)
         return 2
 
     clips_root = ROOT / "output/shadow_dance/seedance_clips"
     clips_root.mkdir(parents=True, exist_ok=True)
-    fitted = []
 
+    jobs = []
     for i, shot in enumerate(shots):
         img = images[shot.image_index % len(images)]
         m = meta[i] if i < len(meta) else {"kind": "world", "beat": ""}
-        prompt = motion_prompt(m.get("beat", ""), m.get("kind", "world"), shot.motion)
-        # Slightly longer than needed so we can trim; Seedance min 4s
-        gen_dur = max(4, min(8, int(round(max(4.0, shot.duration)))))
-        raw = clips_root / f"raw_{i:02d}.mp4"
-        fit = clips_root / f"fit_{i:02d}.mp4"
-        if fit.exists() and fit.stat().st_size > 1000:
-            print(f"[{i+1}/28] reuse {fit.name}")
-            fitted.append(fit)
-            continue
-        print(f"[{i+1}/28] Seedance I2V {img.name} ({gen_dur}s, {shot.motion})…", flush=True)
-        url = image_to_video(
-            img,
-            prompt,
-            duration=gen_dur,
-            resolution="720p",
-            aspect_ratio="9:16",
-            generate_audio=False,  # we mux the song
-            fast=True,
-        )
-        download_video(url, raw)
-        _fit_clip(raw, fit, shot.duration, 1080, 1920)
-        fitted.append(fit)
-        print(f"  -> {fit.name}", flush=True)
+        jobs.append((i, img, m, shot, clips_root))
 
+    results: dict[int, Path] = {}
+    # 2 concurrent — Seedance jobs are long; keep pressure modest
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        futs = {ex.submit(_animate_one, j): j[0] for j in jobs}
+        for fut in as_completed(futs):
+            i, path = fut.result()
+            results[i] = path
+
+    fitted = [results[i] for i in range(len(shots))]
     out = ROOT / "output/shadow_dance/Shadow_Dance_seedance.mp4"
     print("Concat + mux full track…", flush=True)
     _concat_and_mux(fitted, track, out, ass_path=None)
     plan_out = {
         "title": "Shadow Dance",
-        "engine": "seedance-2.0-fast-image-to-video",
+        "engine": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
         "duration": board.duration,
         "scenes": [
             {
@@ -119,4 +126,7 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except SeedanceError as exc:
         print(f"Seedance error: {exc}", file=sys.stderr)
+        raise SystemExit(1)
+    except Exception as exc:  # noqa: BLE001
+        print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1)

@@ -71,8 +71,26 @@ def _concat_and_mux(
             esc = str(c).replace("'", r"'\''")
             f.write(f"file '{esc}'\n")
     silent = output.parent / "_silent_anim.mp4"
+    # Re-encode on concat — Seedance clips can have incompatible bitstream params for -c copy
     subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(work), "-c", "copy", str(silent)],
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(work),
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "18",
+            "-an",
+            str(silent),
+        ],
         check=True,
         capture_output=True,
     )

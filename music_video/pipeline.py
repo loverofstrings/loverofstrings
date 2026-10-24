@@ -9,7 +9,7 @@ from .presets import UserCreativeInput
 from .render import render_music_video
 from .story import build_storyboard
 from .theme import ThemeSpec, build_theme, load_lyrics
-from .timing import TimedShot, expand_shots
+from .timing import TimedShot, expand_shots, retime_scenes_by_music
 
 
 def generate(
@@ -49,6 +49,8 @@ def generate(
         user=user,
         image_count=len(image_paths),
     )
+    # Music-reactive scene lengths + motion picks
+    board = retime_scenes_by_music(board, audio.energy, theme)
     # Explicit scene counts map 1:1 to shots (no extra BPM subdivision)
     one_shot = user.scene_count is not None or len(image_paths) == len(board.scenes)
     shots = expand_shots(
@@ -57,6 +59,7 @@ def generate(
         audio.bpm_estimate,
         fps=fps,
         one_shot_per_scene=one_shot,
+        energy=audio.energy,
     )
 
     out = render_music_video(

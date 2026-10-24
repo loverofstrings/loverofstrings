@@ -136,13 +136,21 @@ def main(argv: list[str] | None = None) -> int:
         from .theme import build_theme, load_lyrics
         from .timing import expand_shots
 
+        from .timing import retime_scenes_by_music
+
         lyrics = load_lyrics(args.lyrics)
         audio = probe(args.track)
         theme = build_theme(args.genre, lyrics, user)
         board = build_storyboard(lyrics, theme, audio.duration, user, len(args.images))
+        board = retime_scenes_by_music(board, audio.energy, theme)
         one_shot = args.scenes is not None or len(args.images) == len(board.scenes)
         shots = expand_shots(
-            board, theme, audio.bpm_estimate, fps=args.fps, one_shot_per_scene=one_shot
+            board,
+            theme,
+            audio.bpm_estimate,
+            fps=args.fps,
+            one_shot_per_scene=one_shot,
+            energy=audio.energy,
         )
         plan = {
             "duration": audio.duration,

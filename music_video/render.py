@@ -10,6 +10,7 @@ from pathlib import Path
 
 from PIL import Image, ImageOps
 
+from .effects import zoompan_filter
 from .story import Storyboard
 from .theme import ThemeSpec
 from .timing import TimedShot
@@ -44,44 +45,6 @@ def _prepare_image(src: Path, dest: Path, width: int, height: int) -> None:
     cover_w, cover_h = int(width * 1.25), int(height * 1.25)
     fitted = ImageOps.fit(img, (cover_w, cover_h), method=Image.Resampling.LANCZOS)
     fitted.save(dest, quality=95)
-
-
-def _zoompan_expr(motion: str, zoom: float, frames: int, width: int, height: int) -> str:
-    """Build ffmpeg zoompan filter expression for a shot."""
-    z_amp = max(0.04, min(0.4, zoom))
-    z_end = 1.0 + z_amp
-    # Increment so we reach z_end over `frames`
-    z_inc = z_amp / max(1, frames)
-
-    if motion == "slow_drift":
-        z = f"min(1+on*{z_inc * 0.6:.6f},{z_end * 0.85:.4f})"
-        x = f"(iw-iw/zoom)*(0.5+0.15*sin(on/30))"
-        y = f"(ih-ih/zoom)*(0.5+0.1*cos(on/40))"
-    elif motion == "film_pan":
-        z = f"min(1+on*{z_inc * 0.4:.6f},{1 + z_amp * 0.5:.4f})"
-        x = f"(iw-iw/zoom)*(on/{max(1, frames - 1)})"
-        y = "(ih-ih/zoom)/2"
-    elif motion == "punch_in":
-        z = f"min(1+on*{z_inc * 1.4:.6f},{z_end:.4f})"
-        x = "(iw-iw/zoom)/2"
-        y = "(ih-ih/zoom)/2"
-    elif motion == "shake_zoom":
-        z = f"min(1+on*{z_inc:.6f},{z_end:.4f})"
-        x = f"(iw-iw/zoom)*(0.5+0.08*sin(on*0.9))"
-        y = f"(ih-ih/zoom)*(0.5+0.08*cos(on*1.1))"
-    elif motion == "pulse_zoom":
-        z = f"min(1+on*{z_inc * 1.1:.6f},{z_end:.4f})"
-        x = f"(iw-iw/zoom)*(0.5+0.05*sin(on/12))"
-        y = "(ih-ih/zoom)/2"
-    else:
-        z = f"min(1+on*{z_inc:.6f},{z_end:.4f})"
-        x = "(iw-iw/zoom)/2"
-        y = "(ih-ih/zoom)/2"
-
-    return (
-        f"zoompan=z='{z}':x='{x}':y='{y}':d={frames}:s={width}x{height}:fps=30,"
-        f"format=yuv420p"
-    )
 
 
 def _write_ass(
@@ -152,7 +115,14 @@ def _render_shot(
     width: int,
     height: int,
 ) -> None:
-    zp = _zoompan_expr(shot.motion, shot.zoom, shot.frames, width, height)
+    zp = zoompan_filter(
+        shot.motion,
+        shot.zoom,
+        shot.frames,
+        width,
+        height,
+        intensity=getattr(shot, "intensity", 0.5),
+    )
     cmd = [
         "ffmpeg",
         "-y",

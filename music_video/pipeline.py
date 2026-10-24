@@ -49,7 +49,15 @@ def generate(
         user=user,
         image_count=len(image_paths),
     )
-    shots = expand_shots(board, theme, audio.bpm_estimate, fps=fps)
+    # Explicit scene counts map 1:1 to shots (no extra BPM subdivision)
+    one_shot = user.scene_count is not None or len(image_paths) == len(board.scenes)
+    shots = expand_shots(
+        board,
+        theme,
+        audio.bpm_estimate,
+        fps=fps,
+        one_shot_per_scene=one_shot,
+    )
 
     out = render_music_video(
         track=track_path,

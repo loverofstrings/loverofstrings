@@ -38,24 +38,30 @@ def expand_shots(
     theme: ThemeSpec,
     bpm: float | None,
     fps: int = 30,
+    *,
+    one_shot_per_scene: bool = False,
 ) -> list[TimedShot]:
-    """Subdivide storyboard scenes into timed visual shots."""
+    """Subdivide storyboard scenes into timed visual shots.
+
+    When ``one_shot_per_scene`` is True (used with an explicit scene count),
+    each storyboard scene becomes exactly one shot — no BPM subdivision.
+    """
     target = _target_cut_length(bpm, theme.speed)
     shots: list[TimedShot] = []
 
     for scene in board.scenes:
         span = max(0.05, scene.end - scene.start)
-        # How many cuts fit in this scene
-        n = max(1, round(span / target))
-        # Cap subdivision so we don't explode for long instrumentals
-        n = min(n, max(1, int(span / 0.6)))
+        if one_shot_per_scene:
+            n = 1
+        else:
+            n = max(1, round(span / target))
+            n = min(n, max(1, int(span / 0.6)))
         piece = span / n
         for j in range(n):
             start = scene.start + j * piece
             end = scene.start + (j + 1) * piece if j < n - 1 else scene.end
             dur = max(0.05, end - start)
             frames = max(1, int(round(dur * fps)))
-            # Alternate caption: full text on first piece, empty or line slice after
             caption = _caption_slice(scene.text, j, n, theme.caption_style)
             shots.append(
                 TimedShot(

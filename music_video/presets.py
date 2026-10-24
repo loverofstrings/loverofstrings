@@ -349,4 +349,5 @@ class UserCreativeInput:
     caption_style: str | None = None
     title: str | None = None
     artist: str | None = None
+    scene_count: int | None = None  # exact number of visual scenes across the track
     extra: dict[str, Any] = field(default_factory=dict)

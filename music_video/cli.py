@@ -72,6 +72,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--palette", type=_parse_palette, help="Three hex colors: primary,secondary,accent")
     p.add_argument("--title", help="Song title (shown at start)")
     p.add_argument("--artist", help="Artist name")
+    p.add_argument(
+        "--scenes",
+        type=int,
+        help="Exact number of visual scenes across the full track (one shot each)",
+    )
+    p.add_argument(
+        "--star-ratio",
+        type=float,
+        default=0.35,
+        help="When planning starring vs story stills, fraction that feature the musician (default 0.35)",
+    )
 
     p.add_argument("--width", type=int, default=1920)
     p.add_argument("--height", type=int, default=1080)
@@ -115,6 +126,8 @@ def main(argv: list[str] | None = None) -> int:
         caption_style=args.caption_style,
         title=args.title,
         artist=args.artist,
+        scene_count=args.scenes,
+        extra={"star_ratio": args.star_ratio},
     )
 
     if args.plan_only:
@@ -127,7 +140,10 @@ def main(argv: list[str] | None = None) -> int:
         audio = probe(args.track)
         theme = build_theme(args.genre, lyrics, user)
         board = build_storyboard(lyrics, theme, audio.duration, user, len(args.images))
-        shots = expand_shots(board, theme, audio.bpm_estimate, fps=args.fps)
+        one_shot = args.scenes is not None or len(args.images) == len(board.scenes)
+        shots = expand_shots(
+            board, theme, audio.bpm_estimate, fps=args.fps, one_shot_per_scene=one_shot
+        )
         plan = {
             "duration": audio.duration,
             "bpm_estimate": audio.bpm_estimate,

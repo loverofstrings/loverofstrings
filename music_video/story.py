@@ -161,6 +161,61 @@ def _motion_for_role(role: str, theme: ThemeSpec) -> tuple[str, float]:
     return motion, zoom
 
 
+_MOTIONS = ("slow_drift", "film_pan", "pulse_zoom", "punch_in", "shake_zoom")
+
+
+def _block_weight(role: str) -> float:
+    if "chorus" in role or "hook" in role:
+        return 1.35
+    if "bridge" in role:
+        return 1.1
+    if "intro" in role or "outro" in role:
+        return 0.85
+    return 1.0
+
+
+def _expand_to_scene_count(
+    blocks: list[tuple[str, str]],
+    target: int,
+) -> list[tuple[str, str]]:
+    """Split lyric blocks into exactly `target` (role, text) pieces."""
+    if target < 1:
+        target = 1
+    if not blocks:
+        return [("instrumental", "")] * target
+
+    weights = [_block_weight(r) for r, _ in blocks]
+    total_w = sum(weights) or 1.0
+    # Allocate scene slots proportionally, ensure every block gets ≥1 if target >= len(blocks)
+    raw = [max(1, round(target * (w / total_w))) for w in weights] if target >= len(blocks) else [
+        max(1, int(target * (w / total_w))) for w in weights
+    ]
+    # Fix rounding to exact target
+    while sum(raw) > target:
+        # shrink the largest allocation above 1
+        i = max(range(len(raw)), key=lambda j: (raw[j], j))
+        if raw[i] <= 1:
+            break
+        raw[i] -= 1
+    while sum(raw) < target:
+        i = max(range(len(raw)), key=lambda j: (weights[j] / raw[j], j))
+        raw[i] += 1
+
+    out: list[tuple[str, str]] = []
+    for (role, text), count in zip(blocks, raw):
+        lines = [ln for ln in text.split("\n") if ln.strip()] or [""]
+        for j in range(count):
+            # Rotate lyric lines across sub-scenes
+            if len(lines) == 1:
+                piece = lines[0]
+            else:
+                # take 1–2 lines advancing through the block
+                a = (j * 2) % len(lines)
+                piece = "\n".join(lines[a : a + 2]) or lines[j % len(lines)]
+            out.append((role, piece))
+    return out[:target]
+
+
 def build_storyboard(
     lyrics: str,
     theme: ThemeSpec,
@@ -170,23 +225,18 @@ def build_storyboard(
 ) -> Storyboard:
     user = user or UserCreativeInput()
     blocks = _split_lyric_blocks(lyrics)
-    n = len(blocks)
     image_count = max(1, image_count)
 
-    # Weight chorus/hook scenes slightly longer
-    weights: list[float] = []
-    for role, _ in blocks:
-        if "chorus" in role or "hook" in role:
-            weights.append(1.35)
-        elif "bridge" in role:
-            weights.append(1.1)
-        elif "intro" in role or "outro" in role:
-            weights.append(0.85)
-        else:
-            weights.append(1.0)
-    # Speed compresses average scene length (faster = more / shorter cuts via subdividing later)
+    target = user.scene_count
+    if target is None and image_count > len(blocks):
+        # Prefer one scene per starring image when many stills are provided
+        target = image_count
+    if target is not None:
+        blocks = _expand_to_scene_count(blocks, int(target))
+
+    n = len(blocks)
+    weights = [_block_weight(role) for role, _ in blocks]
     total_w = sum(weights) or 1.0
-    # Leave tiny pad at end for fade
     usable = max(1.0, duration - 0.05)
 
     scenes: list[Scene] = []
@@ -200,6 +250,11 @@ def build_storyboard(
         span = usable * (weights[i] / total_w)
         end = duration if i == n - 1 else t + span
         motion, zoom = _motion_for_role(role, theme)
+        # Vary motion across a long scene list so the cut feels intentional
+        if user.scene_count or image_count > 4:
+            motion = _MOTIONS[i % len(_MOTIONS)] if not user.motion else motion
+            if "chorus" in role:
+                zoom = min(0.4, zoom * 1.2)
         narrative = _role_to_beat(role, theme.story_arc, i, n)
         if user.story and i == 0:
             narrative = f"{user.story.strip()} — {narrative}"

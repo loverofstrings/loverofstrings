@@ -83,10 +83,21 @@ python -m music_video --list-genres
 1. **Probe** the track for duration and a rough BPM estimate  
 2. **Theme** from genre presets + lyric mood keywords + your overrides  
 3. **Storyboard** scenes from lyric sections along a genre story arc  
-4. **Timing** subdivides scenes into cuts from BPM × speed  
+4. **Timing** subdivides scenes into cuts from BPM × speed (or one shot per scene with `--scenes N`)  
 5. **Render** Ken Burns motion on your image(s), burn-in lyric captions, mux the full audio  
 
 Sidecar `*.plan.json` next to the MP4 documents theme, scenes, and timing.
+
+### Starring vs story stills
+
+When the musician’s photo is only a **reference** (not the whole video):
+
+- About **~35%** of scenes should **star** her (clear hero of the frame).
+- The rest follow the **lyric/story** world — empty spaces, objects, atmosphere.
+- Some of those story scenes may still **involve** her (distant, over-shoulder, hands, edge of frame) without starring her.
+- Do **not** put her in every shot.
+
+`--scenes 28` locks exactly 28 visual scenes across the full track. `--star-ratio 0.35` records the intended starring fraction for planning.
 
 ## Requirements
 

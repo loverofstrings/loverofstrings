@@ -11,6 +11,29 @@ from pathlib import Path
 
 
 @dataclass
+class EnergyEnvelope:
+    """Per-window RMS energy normalized 0..1 across the full track."""
+
+    hop_sec: float
+    values: list[float]  # one value per hop
+
+    def at(self, t: float) -> float:
+        if not self.values:
+            return 0.5
+        i = int(t / self.hop_sec)
+        i = max(0, min(len(self.values) - 1, i))
+        return self.values[i]
+
+    def mean(self, start: float, end: float) -> float:
+        if not self.values or end <= start:
+            return self.at(start)
+        i0 = max(0, int(start / self.hop_sec))
+        i1 = min(len(self.values), max(i0 + 1, int(math.ceil(end / self.hop_sec))))
+        chunk = self.values[i0:i1]
+        return sum(chunk) / len(chunk) if chunk else 0.5
+
+
+@dataclass
 class AudioInfo:
     path: Path
     duration: float
@@ -18,6 +41,7 @@ class AudioInfo:
     channels: int | None
     has_video: bool
     bpm_estimate: float | None
+    energy: EnergyEnvelope | None = None
 
 
 def _ffprobe(path: Path) -> dict:
@@ -50,6 +74,7 @@ def probe(path: str | Path) -> AudioInfo:
     channels = int(audio["channels"]) if audio and audio.get("channels") else None
 
     bpm = _estimate_bpm(path, duration) if duration > 0 else None
+    energy = _energy_envelope(path, duration) if duration > 0 else None
 
     return AudioInfo(
         path=path,
@@ -58,7 +83,59 @@ def probe(path: str | Path) -> AudioInfo:
         channels=channels,
         has_video=has_video,
         bpm_estimate=bpm,
+        energy=energy,
     )
+
+
+def _energy_envelope(path: Path, duration: float, hop_sec: float = 0.25) -> EnergyEnvelope | None:
+    """Full-track mono energy curve for music-reactive timing/motion."""
+    wav_path = path.with_suffix(".mv_energy.wav")
+    try:
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(path),
+                "-ac",
+                "1",
+                "-ar",
+                "8000",
+                "-f",
+                "wav",
+                str(wav_path),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        import array
+
+        with wave.open(str(wav_path), "rb") as wf:
+            rate = wf.getframerate()
+            samples = array.array("h")
+            samples.frombytes(wf.readframes(wf.getnframes()))
+        if not samples:
+            return None
+        hop = max(1, int(rate * hop_sec))
+        raw: list[float] = []
+        for i in range(0, len(samples) - hop, hop):
+            chunk = samples[i : i + hop]
+            raw.append(math.sqrt(sum(s * s for s in chunk) / len(chunk)))
+        if not raw:
+            return None
+        # Smooth + normalize
+        smoothed = raw[:]
+        for i in range(1, len(raw) - 1):
+            smoothed[i] = 0.25 * raw[i - 1] + 0.5 * raw[i] + 0.25 * raw[i + 1]
+        lo, hi = min(smoothed), max(smoothed)
+        span = (hi - lo) or 1.0
+        values = [(v - lo) / span for v in smoothed]
+        return EnergyEnvelope(hop_sec=hop_sec, values=values)
+    except (subprocess.CalledProcessError, OSError, wave.Error):
+        return None
+    finally:
+        if wav_path.exists():
+            wav_path.unlink(missing_ok=True)
 
 
 def _estimate_bpm(path: Path, duration: float) -> float | None:

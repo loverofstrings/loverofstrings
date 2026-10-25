@@ -58,3 +58,5 @@ Stay on that choice for the whole track.
 - **Luis Royo** (fantasy illustration/painting) = underlying visual genre for the house look.
 - **House style example (pop art):** [`assets/style_refs/house_popart_thickline_example.png`](assets/style_refs/house_popart_thickline_example.png)  
   Thick black comic outlines, Ben-Day dots, flat saturated color (Lichtenstein-like pop art). Use as a visual anchor for the thick-line pop-art end of the house genre — still underpinned by Royo fantasy DNA + cyberpunk/futuristic/emo world when making a video.
+- **Modern pop art library (user-named):** [Magnific — Modern pop art](https://www.magnific.com/free-photos-vectors/modern-pop-art) (formerly Freepik). Also general [Pop art](https://www.magnific.com/free-photos-vectors/pop-art).  
+  Local grabs: [`assets/style_refs/magnific_popart/`](assets/style_refs/magnific_popart/) — comic speech bubbles, Ben-Day dotted color fields, flat graphic pop-art backgrounds. When a song is locked to pop art, match this thick-line / halftone / bold-color language for the **whole** video.

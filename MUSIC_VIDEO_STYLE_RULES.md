@@ -53,6 +53,8 @@ Stay on that choice for the whole track.
 - Use camera shake **sparingly**.
 - Prefer animated scene clips (Seedance / image-to-video) over still slideshows when API access allows.
 
-## Reference artist
+## Reference artist / examples
 
 - **Luis Royo** (fantasy illustration/painting) = underlying visual genre for the house look.
+- **House style example (pop art):** [`assets/style_refs/house_popart_thickline_example.png`](assets/style_refs/house_popart_thickline_example.png)  
+  Thick black comic outlines, Ben-Day dots, flat saturated color (Lichtenstein-like pop art). Use as a visual anchor for the thick-line pop-art end of the house genre — still underpinned by Royo fantasy DNA + cyberpunk/futuristic/emo world when making a video.

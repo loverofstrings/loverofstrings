@@ -105,10 +105,11 @@ For AI stills + image-to-video (e.g. Ramon neon retrowave):
 
 1. Set `FAL_KEY` (or `FAL_API_KEY`) from [fal.ai keys](https://fal.ai/dashboard/keys)
 2. `pip install -r requirements.txt` (includes `fal-client`)
-3. Run `python scripts/make_ramon.py`
+3. Run `python scripts/make_ramon.py` or `python scripts/make_find_me.py`
 
 Stills use `fal-ai/nano-banana-2` (and `/edit` with hero refs). Clips use
-`bytedance/seedance-2.0/fast/image-to-video`. See [`examples/ramon/README.md`](../examples/ramon/README.md).
+`bytedance/seedance-2.0/fast/image-to-video`. See [`examples/ramon/README.md`](../examples/ramon/README.md)
+and [`examples/find_me/README.md`](../examples/find_me/README.md).
 
 ## Requirements
 

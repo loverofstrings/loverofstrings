@@ -16,7 +16,16 @@ python scripts/make_find_me.py
 Without `FAL_KEY`, the script builds comic-graded local stills (from hero refs) and a
 camera-motion preview if the track file is present.
 
-Output: `output/find_me/Find_Me_music_video.mp4`
+## Render (Ken Burns / camera-motion)
+
+```bash
+python3 scripts/render_find_me.py
+```
+
+Uses exact scene_plan timings (~204s vertical). Muxes `assets/find_me/Find_Me.m4a` when present; otherwise a silent timing bed.
+
+Output: `output/find_me/Find_Me_render.mp4`  
+Animated (FAL) output: `output/find_me/Find_Me_music_video.mp4`
 
 ## Layout
 

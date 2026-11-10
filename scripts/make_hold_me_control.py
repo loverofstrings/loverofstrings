@@ -127,6 +127,9 @@ def motion_prompt(shot: dict) -> str:
     return f"{shot['prompt_core']}. {STYLE_LOCK}. {MOTION_TAIL}."
 
 
+PROGRESS_PATH = ROOT / "output/hold_me_control/progress.json"
+
+
 def _animate_one(args: tuple) -> tuple[int, Path]:
     i, img, shot, dur, clips_root = args
     raw = clips_root / f"raw_{i:02d}.mp4"
@@ -151,51 +154,31 @@ def _animate_one(args: tuple) -> tuple[int, Path]:
     return i, fit
 
 
-def run_generate(*, workers: int = 2) -> int:
-    cfg = load_json(CONFIG_PATH)
-    board = load_json(SHOT_BOARD_PATH)
-    windows = shot_windows(cfg, board)
-
-    if not ORDER_PATH.exists():
-        print(f"ERROR: missing {ORDER_PATH} — generate stills first.", file=sys.stderr)
-        return 2
-    images = [ROOT / p for p in ORDER_PATH.read_text().splitlines() if p.strip()]
-    if len(images) != len(windows):
-        print(
-            f"ERROR: {len(images)} images vs {len(windows)} shots",
-            file=sys.stderr,
+def _write_progress(done: list[int], missing: list[int], status: str, note: str = "") -> None:
+    PROGRESS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PROGRESS_PATH.write_text(
+        json.dumps(
+            {
+                "status": status,
+                "done_indices": done,
+                "missing_indices": missing,
+                "done_count": len(done),
+                "missing_count": len(missing),
+                "note": note,
+            },
+            indent=2,
         )
-        return 2
-    for img in images:
-        if not img.is_file():
-            print(f"ERROR: missing still {img}", file=sys.stderr)
-            return 2
+        + "\n",
+        encoding="utf-8",
+    )
 
-    if not fal_key_available():
-        print("ERROR: FAL_KEY not set.", file=sys.stderr)
-        return 2
 
-    track = ROOT / cfg["track"]
-    CLIPS_DIR.mkdir(parents=True, exist_ok=True)
-    write_ass(cfg, ASS_PATH)
-
-    jobs = []
-    for i, ((shot, dur), img) in enumerate(zip(windows, images)):
-        jobs.append((i, img, shot, dur, CLIPS_DIR))
-
-    results: dict[int, Path] = {}
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(_animate_one, j): j[0] for j in jobs}
-        for fut in as_completed(futs):
-            i, path = fut.result()
-            results[i] = path
-
-    fitted = [results[i] for i in range(len(jobs))]
+def _assemble(cfg: dict, fitted: list[Path], track: Path) -> None:
     OUT_MP4.parent.mkdir(parents=True, exist_ok=True)
+    write_ass(cfg, ASS_PATH)
     print("Concat + mux + comic SFX…", flush=True)
     _concat_and_mux(fitted, track, OUT_MP4, ass_path=ASS_PATH)
 
-    # Outro grain pass on last ~6s (subtle)
     grain_out = OUT_MP4.with_name(OUT_MP4.stem + "_grain.mp4")
     dur = float(cfg["duration_sec"])
     grain_start = max(0.0, dur - 6.0)
@@ -227,12 +210,101 @@ def run_generate(*, workers: int = 2) -> int:
         "engine": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
         "aspect": "16:9",
         "duration": cfg["duration_sec"],
-        "shots": len(jobs),
+        "shots": len(fitted),
         "output": str(OUT_MP4),
     }
     OUT_MP4.with_suffix(".plan.json").write_text(json.dumps(plan_out, indent=2))
     print(f"Wrote {OUT_MP4}")
+
+
+def run_generate(*, workers: int = 2) -> int:
+    cfg = load_json(CONFIG_PATH)
+    board = load_json(SHOT_BOARD_PATH)
+    windows = shot_windows(cfg, board)
+
+    if not ORDER_PATH.exists():
+        print(f"ERROR: missing {ORDER_PATH} — generate stills first.", file=sys.stderr)
+        return 2
+    images = [ROOT / p for p in ORDER_PATH.read_text().splitlines() if p.strip()]
+    if len(images) != len(windows):
+        print(
+            f"ERROR: {len(images)} images vs {len(windows)} shots",
+            file=sys.stderr,
+        )
+        return 2
+    for img in images:
+        if not img.is_file():
+            print(f"ERROR: missing still {img}", file=sys.stderr)
+            return 2
+
+    if not fal_key_available():
+        print("ERROR: FAL_KEY not set.", file=sys.stderr)
+        return 2
+
+    track = ROOT / cfg["track"]
+    CLIPS_DIR.mkdir(parents=True, exist_ok=True)
+
+    jobs = []
+    for i, ((shot, dur), img) in enumerate(zip(windows, images)):
+        jobs.append((i, img, shot, dur, CLIPS_DIR))
+
+    results: dict[int, Path] = {}
+    # Resume: collect already-fitted clips before submitting
+    pending = []
+    for j in jobs:
+        i = j[0]
+        fit = CLIPS_DIR / f"fit_{i:02d}.mp4"
+        if fit.exists() and fit.stat().st_size > 1000:
+            print(f"[{i+1}] reuse {fit.name}", flush=True)
+            results[i] = fit
+        else:
+            pending.append(j)
+
+    print(f"Resume: {len(results)} done, {len(pending)} remaining", flush=True)
+
+    balance_locked = False
+    errors: list[str] = []
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = {ex.submit(_animate_one, j): j[0] for j in pending}
+        for fut in as_completed(futs):
+            idx = futs[fut]
+            try:
+                i, path = fut.result()
+                results[i] = path
+            except SeedanceError as e:
+                msg = str(e)
+                errors.append(f"shot {idx}: {msg}")
+                print(f"[{idx+1}] FAIL: {msg}", flush=True)
+                if "Exhausted balance" in msg or "User is locked" in msg:
+                    balance_locked = True
+                    # Cancel remaining futures — no point burning retries
+                    for f in futs:
+                        f.cancel()
+                    break
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"shot {idx}: {e}")
+                print(f"[{idx+1}] FAIL: {e}", flush=True)
+
+    done = sorted(results)
+    missing = [i for i in range(len(jobs)) if i not in results]
+    if missing:
+        note = (
+            "Top up fal.ai balance, then rerun --generate (resumes fitted clips)."
+            if balance_locked
+            else "; ".join(errors[:5])
+        )
+        _write_progress(done, missing, "partial", note)
+        print(
+            f"PARTIAL: {len(done)}/{len(jobs)} clips ready. Missing: {missing}",
+            flush=True,
+        )
+        print(f"Progress: {PROGRESS_PATH}", flush=True)
+        return 4 if balance_locked else 3
+
+    _write_progress(done, [], "complete")
+    _assemble(cfg, [results[i] for i in range(len(jobs))], track)
     return 0
+
 
 
 def dry_run() -> int:

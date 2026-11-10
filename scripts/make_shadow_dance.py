@@ -264,8 +264,45 @@ def ensure_stills(plan: dict) -> list[Path]:
     return images
 
 
+def kenburns_clip(img: Path, dest: Path, duration: float) -> None:
+    """Continuous pan/zoom fallback when Seedance balance is locked."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    frames = max(1, int(round(duration * FPS)))
+    # Slow zoom + slight pan — never a static freeze
+    vf = (
+        f"scale=8000:-1,"
+        f"zoompan=z='min(1.12,1+0.00035*on)':x='iw/2-(iw/zoom/2)+3*sin(on/40)':"
+        f"y='ih/2-(ih/zoom/2)+2*cos(on/55)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS},"
+        f"format=yuv420p"
+    )
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-loop",
+            "1",
+            "-i",
+            str(img),
+            "-t",
+            f"{duration:.3f}",
+            "-vf",
+            vf,
+            "-an",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "18",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+
 def _animate_one(args: tuple) -> tuple[int, Path]:
-    i, img, scene, dur, clips_root = args
+    i, img, scene, dur, clips_root, allow_fallback = args
     raw = clips_root / f"raw_{i:02d}.mp4"
     fit = clips_root / f"fit_{i:02d}.mp4"
     if fit.exists() and fit.stat().st_size > 1000:
@@ -277,21 +314,54 @@ def _animate_one(args: tuple) -> tuple[int, Path]:
         f"[{i+1}/{SCENE_COUNT}] Seedance {img.name} ({gen_dur}s → {dur:.1f}s) [{scene['kind']}]…",
         flush=True,
     )
-    url = image_to_video(
-        img,
-        prompt,
-        duration=gen_dur,
-        resolution="720p",
-        aspect_ratio="16:9",
-        generate_audio=False,
+    try:
+        url = image_to_video(
+            img,
+            prompt,
+            duration=gen_dur,
+            resolution="720p",
+            aspect_ratio="16:9",
+            generate_audio=False,
+        )
+        download_video(url, raw)
+        fit_clip(raw, fit, dur)
+        print(f"[{i+1}/{SCENE_COUNT}] done {fit.name}", flush=True)
+        return i, fit
+    except Exception as e:  # noqa: BLE001 — fal may raise httpx/SeedanceError
+        msg = str(e)
+        blocked = any(
+            s in msg
+            for s in (
+                "Exhausted balance",
+                "User is locked",
+                "403",
+                "Forbidden",
+                "content_policy",
+            )
+        )
+        if allow_fallback and blocked:
+            print(
+                f"[{i+1}/{SCENE_COUNT}] Seedance blocked ({msg[:80]}…) → Ken Burns fallback",
+                flush=True,
+            )
+            kenburns_clip(img, fit, dur)
+            return i, fit
+        raise
+
+
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument(
+        "--allow-kenburns-fallback",
+        action="store_true",
+        help="If Seedance is balance-locked/policy-blocked, use continuous Ken Burns for that shot",
     )
-    download_video(url, raw)
-    fit_clip(raw, fit, dur)
-    print(f"[{i+1}/{SCENE_COUNT}] done {fit.name}", flush=True)
-    return i, fit
+    args = ap.parse_args(argv)
 
-
-def main() -> int:
     plan = load_plan()
     assert len(plan["scenes"]) == SCENE_COUNT, len(plan["scenes"])
     track = ROOT / plan["track"]
@@ -305,14 +375,15 @@ def main() -> int:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
 
-    if not fal_key_available():
+    if not fal_key_available() and not args.allow_kenburns_fallback:
         print("ERROR: FAL_KEY not set.", file=sys.stderr)
         return 2
 
     durs = shot_durations(plan)
     CLIPS_DIR.mkdir(parents=True, exist_ok=True)
     jobs = [
-        (i, images[i], plan["scenes"][i], durs[i], CLIPS_DIR) for i in range(SCENE_COUNT)
+        (i, images[i], plan["scenes"][i], durs[i], CLIPS_DIR, args.allow_kenburns_fallback)
+        for i in range(SCENE_COUNT)
     ]
 
     results: dict[int, Path] = {}
@@ -358,6 +429,7 @@ def main() -> int:
         "title": plan["title"],
         "style": "combined_graphic_novel_magnific_popart_anamorphic35mm",
         "engine": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
+        "fallback": "kenburns_when_seedance_locked",
         "aspect": "16:9",
         "fps": FPS,
         "scenes": SCENE_COUNT,

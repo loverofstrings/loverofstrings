@@ -1,0 +1,113 @@
+{
+  "project": "hold_me_control_shadow_behind_smile",
+  "title": "Hold Me Control (Remastered)",
+  "story_title": "The Shadow Behind the Smile",
+  "status": "awaiting_confirmation",
+  "track": "assets/hold_me_control/Hold_Me_Control_Remastered.mp3",
+  "duration_sec": 163.75,
+  "lexxi_ref": "assets/hold_me_control/lexxi_ref.jpg",
+  "aspect": "16:9",
+  "width": 1920,
+  "height": 1080,
+  "fps": 24,
+  "style": {
+    "lock": "magnific_modern_pop_art",
+    "rules": "MUSIC_VIDEO_STYLE_RULES.md",
+    "palette": ["cyan", "magenta", "bright_yellow"],
+    "outline_px": 4,
+    "halftone": true,
+    "forbid": ["photorealism", "3d_cgi", "plain_ui_text", "static_freeze_frames"]
+  },
+  "engine": {
+    "still_generator": "cursor_generate_image",
+    "i2v": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
+    "assemble": "ffmpeg",
+    "generate_audio_on_seedance": false
+  },
+  "motion_policy": {
+    "mode": "continuous",
+    "required_verbs": [
+      "hair blowing in wind",
+      "rain bouncing on wet asphalt",
+      "shadow tendrils writhing and smoking",
+      "neon reflections shifting",
+      "camera tracking motion"
+    ],
+    "forbidden": ["still photograph", "frozen pose", "static frame"]
+  },
+  "characters": {
+    "lexxi_red": {
+      "role": "protagonist",
+      "hair": "long voluminous wavy golden-orange",
+      "skin": "fair",
+      "eyes": "sharp confident",
+      "wardrobe": "black textured motorcycle leather jacket with metallic studs",
+      "style": "bold pop art vector thick ink outlines halftone"
+    },
+    "love_interest": {
+      "role": "love_interest_monster",
+      "human": "messy dark undercut, white tee under distressed denim vest",
+      "monster": "liquid-black eldritch shadow, glowing hollow eyes, writhing ink tendrils",
+      "rule": "corruption only when Lexxi back is turned; snaps human when she looks"
+    },
+    "syndicate": {
+      "count": 2,
+      "look": "generic neon-masked futuristic enforcers",
+      "role": "combat B-roll absorbers"
+    }
+  },
+  "starring_ratio": 0.35,
+  "scene_count_target": 28,
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Intro_Verse1_RainAlley",
+      "t_start": 0.0,
+      "t_end": 33.3,
+      "camera": "animated tracking shot",
+      "action": "Lexxi and love interest run rainy city alley, take cover behind brick wall",
+      "sfx": [{"text": "WHOOSH!", "style": "vibrant stylized comic bubble", "color": "yellow"}]
+    },
+    {
+      "id": 2,
+      "name": "PreChorus_FirstShift",
+      "t_start": 33.3,
+      "t_end": 62.3,
+      "camera": "animated medium shot",
+      "action": "Lexxi scouts around corner; partner ripples into shadow tendrils and jaw-split; snaps human with grin when she turns",
+      "sfx": [{"text": "CRACKLE...", "style": "dark jagged pulse", "color": "near-black magenta"}]
+    },
+    {
+      "id": 3,
+      "name": "Chorus_HighAction",
+      "t_start": 62.3,
+      "t_end": 101.4,
+      "camera": "hard-hitting animated cuts",
+      "action": "Lexxi kick vs neon-masked enforcer; partner shadow claw crushes drone behind her",
+      "sfx": [
+        {"text": "POW!", "style": "giant bright impact", "color": "yellow"},
+        {"text": "SKRRRRT!", "style": "purple jagged mechanical", "color": "purple"}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Verse2_Climax_Guardian",
+      "t_start": 101.4,
+      "t_end": 137.7,
+      "camera": "tragic split-panel tracking",
+      "action": "Lexxi walks neon street back to camera; full ink-shadow monster trails as guardian",
+      "sfx": [{"text": "BOOM...", "style": "haunting distorted bleed into environment", "color": "deep purple-black"}]
+    },
+    {
+      "id": 5,
+      "name": "Outro_Realization",
+      "t_start": 137.7,
+      "t_end": 163.75,
+      "camera": "tight close-up loop",
+      "action": "black shadow drop on jacket stud; Lexxi looks up with realization; analog grain/static fade",
+      "sfx": [],
+      "post": "analog_video_grain_static_fade"
+    }
+  ],
+  "output": "output/hold_me_control/Hold_Me_Control_ShadowBehindSmile_16x9.mp4"
+}

@@ -1,0 +1,40 @@
+{
+  "project": "hold_me_control_shadow_behind_smile",
+  "total_target_shots": 28,
+  "shots": [
+    {"id": "S1-01", "scene": 1, "duration_hint": 5.5, "cast": ["lexxi", "love_interest"], "prompt_core": "16:9 pop art tracking shot: Lexxi Red golden-orange wavy hair blowing hard in rain wind, black studded leather jacket, running with dark-undercut partner in white tee denim vest down rainy neon alley, continuous rain bounce on wet asphalt, thick 4px ink outlines, cyan magenta yellow Ben-Day halftone, camera dollies with them"},
+    {"id": "S1-02", "scene": 1, "duration_hint": 5.5, "cast": ["lexxi", "love_interest"], "prompt_core": "side tracking pop art: Lexxi and partner sprint past neon signs, hair whipping, puddles splash continuously, heavy black outlines, saturated primary colors"},
+    {"id": "S1-03", "scene": 1, "duration_hint": 5.5, "cast": ["lexxi", "love_interest"], "prompt_core": "they slide into cover behind brick wall, rain sheets sideways across panel, motion never freezes"},
+    {"id": "S1-04", "scene": 1, "duration_hint": 5.5, "cast": ["lexxi", "love_interest"], "sfx": "WHOOSH!", "prompt_core": "cover beat: wind sweeps rain horizontally, Lexxi hair still blowing, comic energy burst space for WHOOSH overlay"},
+    {"id": "S1-05", "scene": 1, "duration_hint": 5.5, "cast": ["lexxi", "love_interest"], "prompt_core": "breathing after cover, neon puddle ripples animate, partner human form glancing back, continuous micro-motion"},
+    {"id": "S1-06", "scene": 1, "duration_hint": 5.8, "cast": ["world"], "prompt_core": "rainy alley atmosphere B-roll pop art, neon reflections crawling on wet ground, no characters freeze"},
+
+    {"id": "S2-01", "scene": 2, "duration_hint": 5.8, "cast": ["lexxi"], "prompt_core": "medium shot Lexxi back to camera peering around brick corner scouting alley, orange hair wind-blown, rain continuous"},
+    {"id": "S2-02", "scene": 2, "duration_hint": 5.8, "cast": ["love_interest_monster"], "prompt_core": "behind Lexxi: partner silhouette violently ripples stretches, black shadow tendrils break from back WRITHING continuously, jaw splits jagged monstrous outline, hollow glowing eyes, ink smoke shifting"},
+    {"id": "S2-03", "scene": 2, "duration_hint": 5.8, "cast": ["love_interest_monster"], "sfx": "CRACKLE...", "prompt_core": "eldritch shadow form pulsing and smoking, dark jagged energy, CRACKLE comic space, continuous liquid black motion"},
+    {"id": "S2-04", "scene": 2, "duration_hint": 5.8, "cast": ["lexxi", "love_interest"], "prompt_core": "Lexxi turns back; partner SNAPS perfectly into clean pop-art human, breathless grin, residual ink smoke dissipating"},
+    {"id": "S2-05", "scene": 2, "duration_hint": 5.8, "cast": ["lexxi", "love_interest"], "prompt_core": "false safety: Lexxi looks relieved, partner smiling human, rain and neon still moving"},
+
+    {"id": "S3-01", "scene": 3, "duration_hint": 5.0, "cast": ["lexxi", "enforcer"], "prompt_core": "Lexxi leaps into close combat kick vs neon-masked syndicate enforcer, dynamic motion blur comic, hair flying"},
+    {"id": "S3-02", "scene": 3, "duration_hint": 5.0, "cast": ["lexxi", "enforcer"], "sfx": "POW!", "prompt_core": "kick impact moment, giant bright yellow POW comic burst space, impact shockwaves animate"},
+    {"id": "S3-03", "scene": 3, "duration_hint": 5.0, "cast": ["lexxi", "enforcer"], "prompt_core": "Lexxi continues striking second neon-masked enforcer, hard cut energy, continuous fight motion"},
+    {"id": "S3-04", "scene": 3, "duration_hint": 5.0, "cast": ["love_interest_monster", "drone"], "prompt_core": "behind Lexxi out of her sight: partner expands massive looming shadow claw WRITHING, crushing rival drone"},
+    {"id": "S3-05", "scene": 3, "duration_hint": 5.0, "cast": ["love_interest_monster", "drone"], "sfx": "SKRRRRT!", "prompt_core": "shadow claw crushing drone mechanical destruction, purple jagged SKRRRRT space, sparks and ink smoke continuous"},
+    {"id": "S3-06", "scene": 3, "duration_hint": 5.0, "cast": ["lexxi", "enforcer"], "prompt_core": "Lexxi spinning kick B-roll, enforcer recoils, neon alley combat, hair and rain motion"},
+    {"id": "S3-07", "scene": 3, "duration_hint": 5.0, "cast": ["world", "drone"], "prompt_core": "drone wreckage tumbling in pop art rain alley, continuous debris motion"},
+    {"id": "S3-08", "scene": 3, "duration_hint": 4.1, "cast": ["lexxi", "love_interest"], "prompt_core": "Lexxi advances fighting; partner briefly human beside her then edge of frame darkens with ink"},
+
+    {"id": "S4-01", "scene": 4, "duration_hint": 6.0, "cast": ["lexxi"], "prompt_core": "camera tracks Lexxi walking confidently neon street BACK TO CAMERA, orange hair sway, jacket studs gleam, continuous walk cycle"},
+    {"id": "S4-02", "scene": 4, "duration_hint": 6.0, "cast": ["lexxi", "monster"], "prompt_core": "split-panel comic: top Lexxi walking; bottom massive towering dark shadow monster fluid ink negative space trailing her, tendrils WRITHING"},
+    {"id": "S4-03", "scene": 4, "duration_hint": 6.0, "cast": ["monster"], "sfx": "BOOM...", "prompt_core": "full body eldritch guardian of liquid black ink smoke, hollow eyes, BOOM distorted bleed into neon environment, continuous morphing"},
+    {"id": "S4-04", "scene": 4, "duration_hint": 6.0, "cast": ["lexxi", "monster"], "prompt_core": "tracking shot Lexxi unaware, shadow monster looms huge behind her protective and terrifying, ink continuously shifting"},
+    {"id": "S4-05", "scene": 4, "duration_hint": 6.0, "cast": ["lexxi", "monster"], "prompt_core": "push-in tragic composition: Lexxi silhouette small vs towering ink guardian filling frame height, rain and smoke moving"},
+    {"id": "S4-06", "scene": 4, "duration_hint": 6.2, "cast": ["monster"], "prompt_core": "close on monster hollow glowing eyes and writhing negative-space face, continuous liquid motion"},
+
+    {"id": "S5-01", "scene": 5, "duration_hint": 5.2, "cast": ["lexxi"], "prompt_core": "tight close-up Lexxi face pop art, orange hair micro-motion, neon reflections in eyes, continuous subtle life"},
+    {"id": "S5-02", "scene": 5, "duration_hint": 5.2, "cast": ["lexxi"], "prompt_core": "single drop black shadow fluid lands on metallic jacket stud, droplet spreads liquid, continuous"},
+    {"id": "S5-03", "scene": 5, "duration_hint": 5.2, "cast": ["lexxi"], "prompt_core": "Lexxi eyes lift toward camera sudden realization, expression shift animated, hair still moving"},
+    {"id": "S5-04", "scene": 5, "duration_hint": 5.2, "cast": ["lexxi"], "prompt_core": "realization hold with growing analog video grain creeping in, pop art degrading into static, continuous grain crawl"},
+    {"id": "S5-05", "scene": 5, "duration_hint": 5.35, "cast": ["world"], "prompt_core": "full analog static and video snow fade, pop art fragments dissolving, continuous noise motion into black"}
+  ]
+}

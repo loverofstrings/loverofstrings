@@ -1,0 +1,309 @@
+{
+  "title": "The Golden Android's Mirage",
+  "story": "In a high-tech utopian metropolis, Alex navigates neon luxury clubs among 45+ socialites with her tall long-haired love interest. A menacing evil humanoid robot stalks them; when her back turns, corruption warps him. At climax the robot forces a tragic transformation that reframes him as a majestic chrome and obsidian-gold cybernetic companion.",
+  "style_lock": "COMBINED: mature sophisticated graphic novel (rich ink washes, cross-hatch shading, charcoal texture, atmospheric lighting) PLUS Magnific modern pop-art energy (thick clean ink boundary profiles, saturated cyan/magenta/bright yellow accents, subtle Ben-Day/halftone on skin and sky). Anamorphic 35mm cinematic feel, widescreen lens flares, elegant elongated human proportions with lengthened legs. Absolutely NO comic text, speech bubbles, or onomatopoeia (no WHOOSH/POW/BOOM).",
+  "aspect": "16:9",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "scene_count": 32,
+  "track": "assets/hold_me_control/Hold_Me_Control_Remastered.mp3",
+  "duration_sec": 163.75,
+  "characters": {
+    "alex": "Hero/Alex \u2014 fierce protagonist, long voluminous wavy golden-orange hair, studded black motorcycle leather jacket, sharp expressive eyes, elegant elongated proportions",
+    "love_interest_human": "Tall incredibly handsome pretty man with long flowing hair, charming grin, elegant body, stylized buckled combat boots",
+    "evil_robot": "Menacing high-risk evil humanoid robot / mechanical shell with terrifying grin, dark metallic energy",
+    "companion_android": "Strikingly handsome very tall humanoid android, polished chrome and brushed obsidian-gold finish, majestic low-angle presence",
+    "crowd": "Massive crowd of 45+ distinct utopian cityscape socialites / elite lounge characters"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "kind": "broll",
+      "t0": 0.0,
+      "t1": 4.0,
+      "cue": "[Intro Beats]",
+      "beat": "Establishing utopian cityscape at twilight; towering glass spires reflecting moody magenta wash; clean 30fps hover vehicles gliding through structural arches; anamorphic 35mm wide",
+      "file": "ga01_broll.jpg"
+    },
+    {
+      "id": 2,
+      "kind": "world",
+      "t0": 4.0,
+      "t1": 8.0,
+      "cue": "You walk in late",
+      "beat": "Wide tracking crowded luxury lounge with 20+ elite socialites holding crystal glasses; doors slide open; B-roll depth of background characters",
+      "file": "ga02_world.jpg"
+    },
+    {
+      "id": 3,
+      "kind": "star",
+      "t0": 8.0,
+      "t1": 12.0,
+      "cue": "WITH THE CHARMING GRIN",
+      "beat": "Slow-motion medium close-up: long-haired pretty man walks in flashing confident charming smile; elegant proportions; detailed cross-hatch shading",
+      "file": "ga03_star.jpg"
+    },
+    {
+      "id": 4,
+      "kind": "supporting",
+      "t0": 12.0,
+      "t1": 17.0,
+      "cue": "Boots and leather chains",
+      "beat": "Low-angle tracking on his elongated legs and stylized buckled combat boots clicking across shiny marble floors",
+      "file": "ga04_supporting.jpg"
+    },
+    {
+      "id": 5,
+      "kind": "broll",
+      "t0": 17.0,
+      "t1": 21.0,
+      "cue": "And all your friends",
+      "beat": "B-Roll pan across diverse squad cheering from velvet booth; fully populated social scene; many distinct faces",
+      "file": "ga05_broll.jpg"
+    },
+    {
+      "id": 6,
+      "kind": "star",
+      "t0": 21.0,
+      "t1": 25.0,
+      "cue": "You're a sight to see",
+      "beat": "Over-shoulder from Alex: voluminous golden-orange hair catching crimson rim-light as she locks eyes with him",
+      "file": "ga06_star.jpg"
+    },
+    {
+      "id": 7,
+      "kind": "star",
+      "t0": 25.0,
+      "t1": 30.0,
+      "cue": "Nice on the eyes",
+      "beat": "Split-panel graphic: left Alex sharp expressive gaze; right his serene handsome profile softened by romantic neon glow",
+      "file": "ga07_star.jpg"
+    },
+    {
+      "id": 8,
+      "kind": "broll",
+      "t0": 30.0,
+      "t1": 34.0,
+      "cue": "singing good ol' late-night",
+      "beat": "B-Roll lounge lights dim; background characters turn toward central bar; breathing social environment",
+      "file": "ga08_broll.jpg"
+    },
+    {
+      "id": 9,
+      "kind": "poetic",
+      "t0": 34.0,
+      "t1": 38.0,
+      "cue": "lullabies' (yeah)",
+      "beat": "Poetic slow-motion: shimmering neon dust cascades from overhead vents as pretty man tilts head back speaking smoothly",
+      "file": "ga09_poetic.jpg"
+    },
+    {
+      "id": 10,
+      "kind": "star",
+      "t0": 38.0,
+      "t1": 42.0,
+      "cue": "Now I'm leaning in",
+      "beat": "Close-up tracking: Alex leans forward across metallic table; studded leather jacket catching high-contrast reflections",
+      "file": "ga10_star.jpg"
+    },
+    {
+      "id": 11,
+      "kind": "broll",
+      "t0": 42.0,
+      "t1": 47.0,
+      "cue": "Can't play it cool",
+      "beat": "B-Roll retro digital clock ticks in slow motion; numbers softly blurring into nostalgic sepia wash",
+      "file": "ga11_broll.jpg"
+    },
+    {
+      "id": 12,
+      "kind": "supporting",
+      "t0": 47.0,
+      "t1": 51.0,
+      "cue": "You got that pull",
+      "beat": "Love interest steps closer; behind his back unseen by Alex a dark liquid shadow violently ripples across wallpaper",
+      "file": "ga12_supporting.jpg"
+    },
+    {
+      "id": 13,
+      "kind": "world",
+      "t0": 51.0,
+      "t1": 55.0,
+      "cue": "I fall for your move",
+      "beat": "Hard cut flash: jagged mechanical silhouette with terrifying grin behind him completely out of Alex line of sight",
+      "file": "ga13_world.jpg"
+    },
+    {
+      "id": 14,
+      "kind": "broll",
+      "t0": 55.0,
+      "t1": 60.0,
+      "cue": "[Heavy Synth Drop]",
+      "beat": "B-Roll blitz: rapid seamless 30fps transitions through flashing blue and red street alarms; continuous motion",
+      "file": "ga14_broll.jpg"
+    },
+    {
+      "id": 15,
+      "kind": "star",
+      "t0": 60.0,
+      "t1": 64.0,
+      "cue": "I like it... say my name",
+      "beat": "Wide tracking: Alex and partner run rainy street corridor; long realistic lengthened legs; urgent forward motion",
+      "file": "ga15_star.jpg"
+    },
+    {
+      "id": 16,
+      "kind": "poetic",
+      "t0": 64.0,
+      "t1": 69.0,
+      "cue": "I like it when you cause me pain",
+      "beat": "Poetic substitution not fighting: raindrops exploding off Alex shoulder studs ultra-slow-motion; deep ink washes framing her face",
+      "file": "ga16_poetic.jpg"
+    },
+    {
+      "id": 17,
+      "kind": "star",
+      "t0": 69.0,
+      "t1": 73.0,
+      "cue": "You pull me close... pull you back",
+      "beat": "He pulls her behind concrete pillar dodging sweeping security drone light; faces inches apart; thick atmospheric haze",
+      "file": "ga17_star.jpg"
+    },
+    {
+      "id": 18,
+      "kind": "broll",
+      "t0": 73.0,
+      "t1": 77.0,
+      "cue": "Yeah, I like like like it like that",
+      "beat": "B-Roll sweeping blue security laser across wet asphalt leaving vibrant neon streaks",
+      "file": "ga18_broll.jpg"
+    },
+    {
+      "id": 19,
+      "kind": "supporting",
+      "t0": 77.0,
+      "t1": 82.0,
+      "cue": "Dark hungry eyes",
+      "beat": "Extreme close-up love interest eyes shifting from warm human colors into brilliant chrome reflection",
+      "file": "ga19_supporting.jpg"
+    },
+    {
+      "id": 20,
+      "kind": "broll",
+      "t0": 82.0,
+      "t1": 86.0,
+      "cue": "You got me stunned... done",
+      "beat": "B-Roll: Alex looks away to skyline; behind her his arm warps into metallic clawed cybernetic skeletal frame then shifts back",
+      "file": "ga20_broll.jpg"
+    },
+    {
+      "id": 21,
+      "kind": "broll",
+      "t0": 86.0,
+      "t1": 90.0,
+      "cue": "How'd you do this to a grown",
+      "beat": "Multi-character panel: crowd of citizens on upper walkways watching neon towers oblivious to transformation below",
+      "file": "ga21_broll.jpg"
+    },
+    {
+      "id": 22,
+      "kind": "nostalgic",
+      "t0": 90.0,
+      "t1": 95.0,
+      "cue": "Woman... anything yes I would",
+      "beat": "Nostalgic flashback: dreamlike memory pane soft warm sepia wash; couple sharing smile under clear skies",
+      "file": "ga22_nostalgic.jpg"
+    },
+    {
+      "id": 23,
+      "kind": "world",
+      "t0": 95.0,
+      "t1": 99.0,
+      "cue": "Now I'm leaning... feigning",
+      "beat": "Sepia dissolves into gritty saturated primary colors of cyberpunk graphic novel; transition back to reality",
+      "file": "ga23_world.jpg"
+    },
+    {
+      "id": 24,
+      "kind": "star",
+      "t0": 99.0,
+      "t1": 103.0,
+      "cue": "Baby for you",
+      "beat": "Close-up Alex face; single tear or raindrop on cheek highlighted by dramatic red neon wash",
+      "file": "ga24_star.jpg"
+    },
+    {
+      "id": 25,
+      "kind": "broll",
+      "t0": 103.0,
+      "t1": 108.0,
+      "cue": "[Chorus Heavy Pulsating]",
+      "beat": "B-Roll: evil humanoid robot manifestation fully detaches from love interest shadow looming over the pair like independent monster",
+      "file": "ga25_broll.jpg"
+    },
+    {
+      "id": 26,
+      "kind": "world",
+      "t0": 108.0,
+      "t1": 113.0,
+      "cue": "Can I play your game?",
+      "beat": "Climax: robotic monster wraps dark metallic energy around love interest initiating final transformation",
+      "file": "ga26_world.jpg"
+    },
+    {
+      "id": 27,
+      "kind": "broll",
+      "t0": 113.0,
+      "t1": 118.0,
+      "cue": "Maybe it's quick... wild... easy",
+      "beat": "B-Roll camera rapidly rotates around swirling chrome and gold vortex; debris and neon dust spiral continuously 16:9",
+      "file": "ga27_broll.jpg"
+    },
+    {
+      "id": 28,
+      "kind": "android",
+      "t0": 118.0,
+      "t1": 123.0,
+      "cue": "When you smile... take that chance",
+      "beat": "Transformation complete: dramatic low-angle majestic tracking; love interest emerges as strikingly handsome very tall humanoid android polished chrome and brushed obsidian-gold",
+      "file": "ga28_android.jpg"
+    },
+    {
+      "id": 29,
+      "kind": "star",
+      "t0": 123.0,
+      "t1": 129.0,
+      "cue": "[Final Chorus Re-drop]",
+      "beat": "Alex walks confidently beside newly chrome companion down center of utopian avenue; majestic pace",
+      "file": "ga29_star.jpg"
+    },
+    {
+      "id": 30,
+      "kind": "broll",
+      "t0": 129.0,
+      "t1": 135.0,
+      "cue": "[Final Chorus crowd]",
+      "beat": "B-Roll: massive crowd of 45+ distinct socialites standing back in awe along the avenue; many unique faces",
+      "file": "ga30_broll.jpg"
+    },
+    {
+      "id": 31,
+      "kind": "poetic",
+      "t0": 135.0,
+      "t1": 150.0,
+      "cue": "I like it... cause me pain",
+      "beat": "Outro: camera slowly dollies back wide shot of couple beneath swaying neon palm trees against dark purple dusk sky",
+      "file": "ga31_poetic.jpg"
+    },
+    {
+      "id": 32,
+      "kind": "broll",
+      "t0": 150.0,
+      "t1": 163.75,
+      "cue": "[Outro grain]",
+      "beat": "Outro B-Roll: graceful transition into heavy analog video grain and static over the utopian dusk skyline; continuous noise crawl",
+      "file": "ga32_broll.jpg"
+    }
+  ]
+}

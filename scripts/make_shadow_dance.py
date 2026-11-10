@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Shadow Dance — full-length graphic novel music video pipeline.
+The Golden Android's Mirage — combined graphic-novel + Magnific pop-art
+full-length 16:9 music video (32 scenes, B-roll throughout).
 
-Mature ink-wash graphic novel aesthetic (NOT cartoon pop-art).
-No comic text / SFX overlays. Alex + Companion Android.
-30 Seedance clips → FFmpeg stitch → /workspace/artifacts/
-
-Master audio: Hold Me Control Remastered (~163.7s) for full-length 16:9 YouTube.
+- Sophisticated ink washes / cross-hatch + thick pop-art ink boundaries
+- Anamorphic 35mm cinematic feel
+- Alex + long-haired love interest → chrome/obsidian-gold companion android
+- Evil robot stalker (corruption when Alex's back is turned)
+- No comic text / SFX overlays
+- Seedance continuous motion → FFmpeg stitch → /workspace/artifacts/
 """
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -27,41 +28,53 @@ from music_video.seedance import (  # noqa: E402
     image_to_video,
 )
 
-PLAN_PATH = ROOT / "examples/shadow_dance/scene_plan_graphic_novel.json"
-SCENES_DIR = ROOT / "examples/shadow_dance/scenes_graphic_novel"
-ORDER_PATH = ROOT / "examples/shadow_dance/scenes_graphic_novel_order.txt"
-CLIPS_DIR = ROOT / "output/shadow_dance_graphic_novel/clips"
+PLAN_PATH = ROOT / "examples/shadow_dance/scene_plan_golden_android.json"
+SCENES_DIR = ROOT / "examples/shadow_dance/scenes_golden_android"
+ORDER_PATH = ROOT / "examples/shadow_dance/scenes_golden_android_order.txt"
+CLIPS_DIR = ROOT / "output/golden_android/clips"
 ARTIFACTS_DIR = ROOT / "artifacts"
-FINAL_NAME = "Shadow_Dance_GraphicNovel_Full_16x9.mp4"
+FINAL_NAME = "Golden_Android_Mirage_Combined_16x9.mp4"
 WIDTH, HEIGHT, FPS = 1920, 1080, 30
 WORKERS = 2
+SCENE_COUNT = 32
 
 STYLE_LOCK = (
-    "mature high-end graphic novel illustration, rich ink washes, detailed hatch shading, "
-    "subtle charcoal textures, expressive atmospheric lighting, thick clean ink boundary profiles, "
-    "micro-detailed clothing and cyberpunk architecture, elegant elongated human proportions "
-    "with significantly lengthened legs, cinematic composition. "
+    "COMBINED sophisticated graphic novel AND Magnific modern pop-art: "
+    "rich ink washes, detailed cross-hatch shading, subtle charcoal textures, "
+    "thick clean ink boundary profiles, saturated cyan magenta bright-yellow accents, "
+    "subtle Ben-Day/halftone on skin and sky, expressive atmospheric lighting, "
+    "anamorphic 35mm cinematic widescreen look with gentle horizontal lens character, "
+    "elegant elongated human proportions with significantly lengthened legs, "
+    "micro-detailed clothing and utopian cyberpunk architecture. "
     "Absolutely NO comic book text, NO speech bubbles, NO sound-effect letters, "
-    "NO onomatopoeia, NO words like WHOOSH POW BOOM ZOOM, NO cartoon Ben-Day pop-art flatness."
+    "NO onomatopoeia (no WHOOSH POW BOOM ZOOM)."
 )
 
 MOTION_LOCK = (
-    "continuous non-freezing motion physics only: active rain dynamics, wind sweeping hair, "
-    "writhing atmospheric shadow forms, fluid chrome reflections on metal, drifting neon dust, "
-    "slow camera drift. Never a frozen still photograph."
+    "continuous non-freezing 30fps motion physics: active rain, wind in hair, "
+    "hover vehicles gliding, neon dust drifting, chrome reflections fluid, "
+    "shadow/robot corruption writhing when present, camera tracking or dolly drift. "
+    "Never a frozen still photograph."
 )
 
 ALEX = (
-    "Alex, female protagonist, long wavy golden-orange hair, fair skin, sharp expressive eyes, "
-    "edgy studded black motorcycle leather jacket with metallic micro-detail, "
+    "Hero/Alex fierce female protagonist with long voluminous wavy golden-orange hair, "
+    "studded black motorcycle leather jacket, sharp expressive eyes, "
     "elegant elongated proportions and lengthened legs"
 )
-
-ANDROID = (
-    "Companion Android, very tall strikingly handsome humanoid robot, "
-    "high-gloss polished chrome and brushed obsidian-gold metallic finish, "
-    "majestic cinematic low-angle presence, fluid chrome surface reflections"
+LOVE = (
+    "tall incredibly handsome pretty man with long flowing hair, charming grin, "
+    "elegant body proportions, stylized buckled combat boots"
 )
+EVIL = (
+    "menacing evil humanoid robot / jagged mechanical shell with terrifying grin, "
+    "dark metallic energy"
+)
+ANDROID = (
+    "strikingly handsome very tall humanoid companion android with high-gloss polished "
+    "chrome and brushed obsidian-gold metallic finish, majestic low-angle presence"
+)
+CROWD = "massive crowd of many distinct utopian socialites and elite lounge characters"
 
 
 def load_plan() -> dict:
@@ -69,33 +82,28 @@ def load_plan() -> dict:
 
 
 def still_prompt(scene: dict) -> str:
-    grade = scene.get("grade", "graphic")
-    sepia = (
-        " soft warm sepia-tone wash blended naturally into the graphic novel ink palette, "
-        "nostalgic melancholic memory mood,"
-        if grade == "sepia"
-        else ""
-    )
-    cast = ""
-    kind = scene["kind"]
-    if kind == "star":
-        cast = f" Feature {ALEX}."
-    elif kind == "android":
-        cast = f" Feature {ANDROID}."
-    elif kind in ("poetic", "supporting") or "Alex" in scene["beat"] or "android" in scene["beat"].lower():
-        cast = f" Feature {ALEX} and/or {ANDROID} as appropriate to the beat."
+    grade = ""
+    if scene["kind"] == "nostalgic" or "sepia" in scene["beat"].lower():
+        grade = (
+            " Soft warm sepia-tone wash blended naturally into the combined "
+            "graphic-novel/pop-art palette for nostalgic memory mood."
+        )
     return (
-        f"Widescreen 16:9 {STYLE_LOCK}.{sepia} Scene: {scene['beat']}.{cast} "
-        f"No text of any kind in the image."
+        f"Widescreen 16:9 anamorphic 35mm cinematic panel. {STYLE_LOCK}.{grade} "
+        f"Scene ({scene['kind']}): {scene['beat']}. "
+        f"Cast vocabulary as needed: {ALEX}; {LOVE}; {EVIL}; {ANDROID}; {CROWD}. "
+        f"Populate B-roll depth with background characters when the beat implies a social space. "
+        f"No text of any kind in the image. Filename intent: scene {scene['id']:02d}."
     )
 
 
 def motion_prompt_for(scene: dict) -> str:
-    grade = scene.get("grade", "graphic")
-    sepia = " warm sepia memory grade holding," if grade == "sepia" else ""
+    sepia = ""
+    if scene["kind"] == "nostalgic" or "sepia" in scene["beat"].lower():
+        sepia = " warm sepia memory grade holding,"
     return (
-        f"{STYLE_LOCK}.{sepia} Animate: {scene['beat']}. "
-        f"Characters if present: {ALEX}; {ANDROID}. {MOTION_LOCK}"
+        f"{STYLE_LOCK}.{sepia} Animate continuously: {scene['beat']}. "
+        f"Characters: {ALEX}; {LOVE}; {EVIL}; {ANDROID}; {CROWD}. {MOTION_LOCK}"
     )
 
 
@@ -117,7 +125,6 @@ def ffprobe_dur(path: Path) -> float:
 
 
 def fit_clip(src: Path, dest: Path, duration: float) -> None:
-    """Loop/trim to exact duration; scale/crop to 1920x1080 @ 30fps."""
     src_dur = max(0.1, ffprobe_dur(src))
     loops = max(1, int(duration / src_dur) + 1)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -146,15 +153,8 @@ def fit_clip(src: Path, dest: Path, duration: float) -> None:
 
 
 def ffmpeg_stitch_and_mux(clips: list[Path], track: Path, output: Path) -> None:
-    """
-    Automated FFmpeg assembly:
-    1) concat all fitted clips into silent video
-    2) mux with master audio
-    3) write final full-length render
-    """
     output.parent.mkdir(parents=True, exist_ok=True)
-    # Keep intermediates out of /workspace/artifacts
-    work_dir = ROOT / "output/shadow_dance_graphic_novel"
+    work_dir = ROOT / "output/golden_android"
     work_dir.mkdir(parents=True, exist_ok=True)
     work = work_dir / "_concat_list.txt"
     with work.open("w", encoding="utf-8") as f:
@@ -188,7 +188,7 @@ def ffmpeg_stitch_and_mux(clips: list[Path], track: Path, output: Path) -> None:
         capture_output=True,
     )
 
-    # No ASS / no comic SFX — narrative is 100% visual
+    # No ASS / no comic SFX — 100% visual narrative
     subprocess.run(
         [
             "ffmpeg",
@@ -223,39 +223,43 @@ def ffmpeg_stitch_and_mux(clips: list[Path], track: Path, output: Path) -> None:
     )
 
 
-def shot_durations(plan: dict, n: int) -> list[float]:
-    total = float(plan.get("duration_sec") or 163.75)
-    # Slight weight: poetic/nostalgic a bit longer; world shorter
-    weights: list[float] = []
-    for s in plan["scenes"][:n]:
-        k = s["kind"]
-        if k in ("poetic", "nostalgic"):
-            weights.append(1.2)
-        elif k in ("star", "android"):
-            weights.append(1.1)
-        else:
-            weights.append(1.0)
-    tw = sum(weights) or 1.0
-    return [total * (w / tw) for w in weights]
+def shot_durations(plan: dict) -> list[float]:
+    scenes = plan["scenes"]
+    durs = []
+    for s in scenes:
+        d = float(s["t1"]) - float(s["t0"])
+        durs.append(max(0.5, d))
+    # Nudge to exact track length
+    target = float(plan["duration_sec"])
+    scale = target / sum(durs)
+    return [d * scale for d in durs]
 
 
-def ensure_order(plan: dict) -> list[Path]:
+def scene_filename(scene: dict) -> str:
+    return f"ga{scene['id']:02d}_{scene['kind']}.jpg"
+
+
+def ensure_stills(plan: dict) -> list[Path]:
     SCENES_DIR.mkdir(parents=True, exist_ok=True)
     images: list[Path] = []
     lines: list[str] = []
     missing: list[str] = []
+    prompts = []
     for s in plan["scenes"]:
-        p = SCENES_DIR / s["file"]
+        fn = scene_filename(s)
+        s["file"] = fn
+        p = SCENES_DIR / fn
         images.append(p)
         lines.append(str(p.relative_to(ROOT)))
+        prompts.append({"id": s["id"], "file": fn, "kind": s["kind"], "prompt": still_prompt(s)})
         if not p.is_file() or p.stat().st_size < 1000:
-            missing.append(s["file"])
+            missing.append(fn)
     ORDER_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (SCENES_DIR / "STILL_PROMPTS.json").write_text(json.dumps(prompts, indent=2) + "\n")
     if missing:
         raise FileNotFoundError(
-            f"Missing {len(missing)} graphic-novel stills in {SCENES_DIR}: "
-            f"{', '.join(missing[:8])}{'…' if len(missing) > 8 else ''}. "
-            "Generate stills first."
+            f"Missing {len(missing)} stills in {SCENES_DIR}: {', '.join(missing[:10])}"
+            + ("…" if len(missing) > 10 else "")
         )
     return images
 
@@ -265,11 +269,14 @@ def _animate_one(args: tuple) -> tuple[int, Path]:
     raw = clips_root / f"raw_{i:02d}.mp4"
     fit = clips_root / f"fit_{i:02d}.mp4"
     if fit.exists() and fit.stat().st_size > 1000:
-        print(f"[{i+1}/30] reuse {fit.name}", flush=True)
+        print(f"[{i+1}/{SCENE_COUNT}] reuse {fit.name}", flush=True)
         return i, fit
     prompt = motion_prompt_for(scene)
     gen_dur = max(4, min(8, int(round(max(4.0, min(dur, 8.0))))))
-    print(f"[{i+1}/30] Seedance {img.name} ({gen_dur}s → {dur:.1f}s)…", flush=True)
+    print(
+        f"[{i+1}/{SCENE_COUNT}] Seedance {img.name} ({gen_dur}s → {dur:.1f}s) [{scene['kind']}]…",
+        flush=True,
+    )
     url = image_to_video(
         img,
         prompt,
@@ -280,32 +287,20 @@ def _animate_one(args: tuple) -> tuple[int, Path]:
     )
     download_video(url, raw)
     fit_clip(raw, fit, dur)
-    print(f"[{i+1}/30] done {fit.name}", flush=True)
+    print(f"[{i+1}/{SCENE_COUNT}] done {fit.name}", flush=True)
     return i, fit
-
-
-def write_still_prompt_sheet(plan: dict) -> Path:
-    """Helper sheet for external still generation."""
-    sheet = SCENES_DIR / "STILL_PROMPTS.json"
-    SCENES_DIR.mkdir(parents=True, exist_ok=True)
-    rows = [
-        {"file": s["file"], "kind": s["kind"], "grade": s.get("grade"), "prompt": still_prompt(s)}
-        for s in plan["scenes"]
-    ]
-    sheet.write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8")
-    return sheet
 
 
 def main() -> int:
     plan = load_plan()
+    assert len(plan["scenes"]) == SCENE_COUNT, len(plan["scenes"])
     track = ROOT / plan["track"]
     if not track.is_file():
         print(f"ERROR: missing track {track}", file=sys.stderr)
         return 2
 
-    write_still_prompt_sheet(plan)
     try:
-        images = ensure_order(plan)
+        images = ensure_stills(plan)
     except FileNotFoundError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
@@ -314,13 +309,10 @@ def main() -> int:
         print("ERROR: FAL_KEY not set.", file=sys.stderr)
         return 2
 
-    n = len(plan["scenes"])
-    assert n == 30 and len(images) == 30
-    durs = shot_durations(plan, n)
+    durs = shot_durations(plan)
     CLIPS_DIR.mkdir(parents=True, exist_ok=True)
-
     jobs = [
-        (i, images[i], plan["scenes"][i], durs[i], CLIPS_DIR) for i in range(n)
+        (i, images[i], plan["scenes"][i], durs[i], CLIPS_DIR) for i in range(SCENE_COUNT)
     ]
 
     results: dict[int, Path] = {}
@@ -335,47 +327,43 @@ def main() -> int:
             except SeedanceError as e:
                 msg = str(e)
                 errors.append(f"shot {idx}: {msg}")
-                print(f"[{idx+1}/30] FAIL: {msg}", flush=True)
+                print(f"[{idx+1}/{SCENE_COUNT}] FAIL: {msg}", flush=True)
                 if "Exhausted balance" in msg or "User is locked" in msg:
                     for f in futs:
                         f.cancel()
                     break
             except Exception as e:  # noqa: BLE001
                 errors.append(f"shot {idx}: {e}")
-                print(f"[{idx+1}/30] FAIL: {e}", flush=True)
+                print(f"[{idx+1}/{SCENE_COUNT}] FAIL: {e}", flush=True)
 
-    missing = [i for i in range(n) if i not in results]
-    progress = {
-        "done": sorted(results),
-        "missing": missing,
-        "errors": errors[:10],
-    }
-    (CLIPS_DIR.parent / "progress.json").write_text(json.dumps(progress, indent=2) + "\n")
+    missing = [i for i in range(SCENE_COUNT) if i not in results]
+    (CLIPS_DIR.parent / "progress.json").write_text(
+        json.dumps(
+            {"done": sorted(results), "missing": missing, "errors": errors[:12]},
+            indent=2,
+        )
+        + "\n"
+    )
     if missing:
-        print(f"PARTIAL {len(results)}/{n}. Missing: {missing}", flush=True)
+        print(f"PARTIAL {len(results)}/{SCENE_COUNT}. Missing: {missing}", flush=True)
         return 4
 
-    fitted = [results[i] for i in range(n)]
+    fitted = [results[i] for i in range(SCENE_COUNT)]
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
     out = ARTIFACTS_DIR / FINAL_NAME
-    print("FFmpeg stitch + mux master audio → artifacts…", flush=True)
+    print("FFmpeg stitch + mux → artifacts (no comic SFX)…", flush=True)
     ffmpeg_stitch_and_mux(fitted, track, out)
-
-    # Mirror under output/ for workspace convenience
-    mirror = ROOT / "output/shadow_dance_graphic_novel" / FINAL_NAME
-    mirror.parent.mkdir(parents=True, exist_ok=True)
-    if out.resolve() != mirror.resolve():
-        subprocess.run(["cp", "-f", str(out), str(mirror)], check=False)
 
     plan_out = {
         "title": plan["title"],
-        "style": "mature_graphic_novel",
+        "style": "combined_graphic_novel_magnific_popart_anamorphic35mm",
         "engine": "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
         "aspect": "16:9",
         "fps": FPS,
-        "duration_sec": plan["duration_sec"],
-        "shots": n,
+        "scenes": SCENE_COUNT,
         "comic_text": False,
+        "broll_in_all_acts": True,
+        "duration_sec": plan["duration_sec"],
         "output": str(out),
         "track": str(track),
     }

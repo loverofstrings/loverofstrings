@@ -1,6 +1,6 @@
 # Hold Me Control — Pipeline Architecture (CONFIRM BEFORE RUN)
 
-**Status:** Awaiting your confirmation. No Seedance generation started yet.
+**Status:** NEW independent video in progress (not an edit). 30/30 stills ready. Seedance partial — fal balance exhausted; resume with `--generate` after top-up.
 
 ## Project lock
 

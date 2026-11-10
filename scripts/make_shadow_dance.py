@@ -153,13 +153,16 @@ def ffmpeg_stitch_and_mux(clips: list[Path], track: Path, output: Path) -> None:
     3) write final full-length render
     """
     output.parent.mkdir(parents=True, exist_ok=True)
-    work = output.parent / "_concat_list.txt"
+    # Keep intermediates out of /workspace/artifacts
+    work_dir = ROOT / "output/shadow_dance_graphic_novel"
+    work_dir.mkdir(parents=True, exist_ok=True)
+    work = work_dir / "_concat_list.txt"
     with work.open("w", encoding="utf-8") as f:
         for c in clips:
             esc = str(c.resolve()).replace("'", r"'\''")
             f.write(f"file '{esc}'\n")
 
-    silent = output.parent / "_silent_full.mp4"
+    silent = work_dir / "_silent_full.mp4"
     subprocess.run(
         [
             "ffmpeg",

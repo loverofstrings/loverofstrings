@@ -7,6 +7,9 @@ venv/
 .mv_analyze.wav
 output/
 music_video_work/
+# Silent timing beds / local drops (keep hero refs; commit licensed track intentionally)
+assets/find_me/_timing_bed.m4a
+assets/find_me/Find_Me_timing_bed.m4a
 .DS_Store
 # Large raw upload dumps — curated copies live in assets/ramon/hero/
 assets/ramon/refs/

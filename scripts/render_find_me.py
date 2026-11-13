@@ -130,21 +130,71 @@ def render_clip(still: Path, dest: Path, duration: float, kind: str) -> None:
         )
 
 
+def probe_duration(path: Path) -> float:
+    out = subprocess.check_output(
+        [
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-print_format",
+            "json",
+            "-show_format",
+            str(path),
+        ],
+        text=True,
+    )
+    return float(json.loads(out)["format"]["duration"])
+
+
+def scaled_scenes(plan: dict, target_duration: float) -> list[dict]:
+    """Stretch/compress scene_plan cue lengths to match the dropped-in track."""
+    base = float(plan["duration_sec"]) or 1.0
+    scale = target_duration / base
+    out: list[dict] = []
+    for sc in plan["scenes"]:
+        item = dict(sc)
+        item["t_start"] = round(float(sc["t_start"]) * scale, 3)
+        item["t_end"] = round(float(sc["t_end"]) * scale, 3)
+        out.append(item)
+    # Snap last end to exact track length
+    if out:
+        out[-1]["t_end"] = round(target_duration, 3)
+    return out
+
+
 def main() -> int:
     plan = json.loads(PLAN.read_text())
-    scenes = plan["scenes"]
     out = OUT
     out.parent.mkdir(parents=True, exist_ok=True)
     clips_dir = out.parent / "render_clips"
     clips_dir.mkdir(parents=True, exist_ok=True)
+
+    track = find_track()
+    if track:
+        target_duration = probe_duration(track)
+        print(f"Track: {track.name} ({target_duration:.1f}s) — scaling 48-scene plan")
+        label = f"track:{track.name}"
+        used_track = track
+    else:
+        target_duration = float(plan["duration_sec"])
+        bed = ROOT / "assets/find_me/_timing_bed.m4a"
+        print(f"No track in assets/find_me/ — silent {target_duration:.0f}s scaffold")
+        used_track = ensure_timing_bed(target_duration, bed)
+        label = "silent_timing_bed"
+
+    scenes = scaled_scenes(plan, target_duration)
+    # Namespace clips by rounded duration so a new track forces rebuilds
+    tag = f"{int(round(target_duration))}s"
+    tagged_dir = clips_dir / tag
+    tagged_dir.mkdir(parents=True, exist_ok=True)
 
     clips: list[Path] = []
     for sc in scenes:
         still = SCENES / sc["file"]
         if not still.exists():
             raise SystemExit(f"Missing still: {still}")
-        dur = float(sc["t_end"]) - float(sc["t_start"])
-        clip = clips_dir / f"clip_{sc['id']:02d}.mp4"
+        dur = max(0.4, float(sc["t_end"]) - float(sc["t_start"]))
+        clip = tagged_dir / f"clip_{sc['id']:02d}.mp4"
         if clip.exists() and clip.stat().st_size > 20_000:
             print(f"  skip clip {sc['id']:02d} ({dur:.1f}s)")
         else:
@@ -177,19 +227,6 @@ def main() -> int:
         check=True,
         capture_output=True,
     )
-
-    track = find_track()
-    used_track: Path
-    if track:
-        print(f"Muxing licensed track: {track.name}")
-        used_track = track
-        label = "track"
-    else:
-        duration = float(plan["duration_sec"])
-        bed = ROOT / "assets/find_me/Find_Me_timing_bed.m4a"
-        print(f"No track found — muxing silent {duration:.0f}s timing bed")
-        used_track = ensure_timing_bed(duration, bed)
-        label = "silent_timing_bed"
 
     print("Muxing audio…")
     subprocess.run(
@@ -227,11 +264,13 @@ def main() -> int:
         "title": "Find Me",
         "render": "ken_burns_scene_plan",
         "audio": label,
-        "duration_sec": plan["duration_sec"],
+        "plan_duration_sec": plan["duration_sec"],
+        "render_duration_sec": target_duration,
         "scenes": len(scenes),
         "output": str(out),
         "width": WIDTH,
         "height": HEIGHT,
+        "fal": "skipped_optional",
     }
     out.with_suffix(".plan.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"Wrote {out}")

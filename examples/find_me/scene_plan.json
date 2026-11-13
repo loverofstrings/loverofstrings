@@ -1,82 +1,653 @@
 {
   "title": "Find Me",
   "artist": null,
-  "track_note": "Drop any licensed track into assets/find_me/ (mp3/m4a/wav). Timings scale to track duration on render.",
-  "duration_sec": 204.0,
+  "track_note": "Primary audio: assets/find_me/track.mp3 (I Like It Like That). Timings scale from scaffold_duration_sec.",
+  "duration_sec": 213.624,
   "scene_count": 48,
   "starring_ratio": 0.27,
   "starring_count": 13,
   "with_her_supporting": 9,
   "world_only": 18,
   "broll_count": 8,
-  "style": "Sophisticated comic-book digital art — steampunk brass/copper + cyberpunk neon + synthwave grid. Rain-slicked noir, dark ink lines, graphic-novel shadows, cross-hatching, neon rim light. NOT photoreal. Hero likeness from reference rendered in this art style only.",
-  "story": "Deep isolation under neon rain — she searches a fragmented steampunk-cyber city, catches a purple signal, sprints through copper mazes, finds holographic ghosts in a glass conservatory, then leaps into a neon vortex to reconnect before the void shatters.",
-  "pacing_profile": "Cinematic contrast: low-fi emotional isolation → sharp high-velocity kinetic pursuit → ethereal breakdown → finale reconnection.",
+  "style": "Sophisticated comic-book digital art \u2014 steampunk brass/copper + cyberpunk neon + synthwave grid. Rain-slicked noir, dark ink lines, graphic-novel shadows, cross-hatching, neon rim light. NOT photoreal. Hero likeness from reference rendered in this art style only.",
+  "story": "Deep isolation under neon rain \u2014 she searches a fragmented steampunk-cyber city, catches a purple signal, sprints through copper mazes, finds holographic ghosts in a glass conservatory, then leaps into a neon vortex to reconnect before the void shatters.",
+  "pacing_profile": "Cinematic contrast: low-fi emotional isolation \u2192 sharp high-velocity kinetic pursuit \u2192 ethereal breakdown \u2192 finale reconnection.",
   "master_frames": [
-    {"frame": 1, "cue": "0:00-0:18", "title": "The Rain-Slicked Void", "scenes": [1, 2, 3, 4, 5]},
-    {"frame": 2, "cue": "0:18-0:38", "title": "Copper & Neon Isolation", "scenes": [6, 7, 8, 9, 10]},
-    {"frame": 3, "cue": "0:38-0:58", "title": "The Synthwave Spark", "scenes": [11, 12, 13, 14, 15]},
-    {"frame": 4, "cue": "0:58-1:18", "title": "Steam & Pressure Build-up", "scenes": [16, 17, 18, 19, 20]},
-    {"frame": 5, "cue": "1:18-1:48", "title": "The Drop (Velocity Pursuit)", "scenes": [21, 22, 23, 24, 25, 26, 27]},
-    {"frame": 6, "cue": "1:48-2:22", "title": "The Mid-Song Breakdown", "scenes": [28, 29, 30, 31, 32, 33]},
-    {"frame": 7, "cue": "2:22-2:42", "title": "The Climactic Build", "scenes": [34, 35, 36, 37, 38]},
-    {"frame": 8, "cue": "2:42-3:24", "title": "The Grand Finale Drop", "scenes": [39, 40, 41, 42, 43, 44, 45, 46, 47, 48]}
+    {
+      "frame": 1,
+      "cue": "0:00-0:18",
+      "title": "The Rain-Slicked Void",
+      "scenes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "frame": 2,
+      "cue": "0:18-0:38",
+      "title": "Copper & Neon Isolation",
+      "scenes": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "frame": 3,
+      "cue": "0:38-0:58",
+      "title": "The Synthwave Spark",
+      "scenes": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "frame": 4,
+      "cue": "0:58-1:18",
+      "title": "Steam & Pressure Build-up",
+      "scenes": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "frame": 5,
+      "cue": "1:18-1:48",
+      "title": "The Drop (Velocity Pursuit)",
+      "scenes": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "frame": 6,
+      "cue": "1:48-2:22",
+      "title": "The Mid-Song Breakdown",
+      "scenes": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ]
+    },
+    {
+      "frame": 7,
+      "cue": "2:22-2:42",
+      "title": "The Climactic Build",
+      "scenes": [
+        34,
+        35,
+        36,
+        37,
+        38
+      ]
+    },
+    {
+      "frame": 8,
+      "cue": "2:42-3:24",
+      "title": "The Grand Finale Drop",
+      "scenes": [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ]
+    }
   ],
   "scenes": [
-    {"id": 1,  "kind": "broll",      "master_frame": 1, "t_start": 0.0,   "t_end": 3.5,   "beat": "b-roll: extreme wide empty rain city skyline — gothic towers, copper pipes, cyan hologram haze, no people", "file": "fm01_broll_skyline.jpg", "sfx": "SHHHHHHHHH", "dialogue": null},
-    {"id": 2,  "kind": "world",      "master_frame": 1, "t_start": 3.5,   "t_end": 7.0,   "beat": "wide rain-slicked void street: retro-steampunk pipes and glowing cyberpunk holograms, neon purple puddles, no people", "file": "fm02_world_rain_void.jpg", "sfx": null, "dialogue": null},
-    {"id": 3,  "kind": "star",       "master_frame": 1, "t_start": 7.0,   "t_end": 12.0,  "beat": "hero starring under heavy neon downpour, black leather jacket collar up, long blonde hair streaming, reflective purple puddle glow on jacket", "file": "fm03_star_rain_hero.jpg", "sfx": null, "dialogue": "The rain washes over the neon, but it can't clear the signal..."},
-    {"id": 4,  "kind": "supporting", "master_frame": 1, "t_start": 12.0,  "t_end": 15.0,  "beat": "over-shoulder: hero watches distant neon signal through rain; city dominates frame", "file": "fm04_sup_overshoulder_rain.jpg", "sfx": null, "dialogue": null},
-    {"id": 5,  "kind": "world",      "master_frame": 1, "t_start": 15.0,  "t_end": 18.0,  "beat": "extreme close on neon-lit rain streaks and copper pipe reflections in puddles, deep ink shadows", "file": "fm05_world_puddle_glow.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 6,  "kind": "broll",      "master_frame": 2, "t_start": 18.0,  "t_end": 21.5,  "beat": "b-roll: macro brass gear teeth meshing with cyan oil sheen, no people", "file": "fm06_broll_gear_macro.jpg", "sfx": "CLANK-WHIRR", "dialogue": null},
-    {"id": 7,  "kind": "star",       "master_frame": 2, "t_start": 21.5,  "t_end": 26.5,  "beat": "low-angle dramatic close-up starring: hero face skyward, rain beads, sharp pink neon rim light on jawline and hair, blue eyes", "file": "fm07_star_skyward.jpg", "sfx": null, "dialogue": "Where do you run in a city this loud?"},
-    {"id": 8,  "kind": "world",      "master_frame": 2, "t_start": 26.5,  "t_end": 30.5,  "beat": "massive brass gears turning slowly behind colossal neon billboard displays, industrial copper, no face", "file": "fm08_world_brass_gears.jpg", "sfx": null, "dialogue": null},
-    {"id": 9,  "kind": "supporting", "master_frame": 2, "t_start": 30.5,  "t_end": 34.0,  "beat": "thick ink border profile; hero eye and rain-wet cheek at edge of frame, gears dominate", "file": "fm09_sup_eye_edge.jpg", "sfx": null, "dialogue": null},
-    {"id": 10, "kind": "world",      "master_frame": 2, "t_start": 34.0,  "t_end": 38.0,  "beat": "empty copper catwalk over neon void, steam vents, no people", "file": "fm10_world_copper_catwalk.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 11, "kind": "broll",      "master_frame": 3, "t_start": 38.0,  "t_end": 41.0,  "beat": "b-roll: abstract jagged purple-indigo energy crackling across wet asphalt, no people", "file": "fm11_broll_energy_crack.jpg", "sfx": "BZZZZZZT-KRAK!", "dialogue": null},
-    {"id": 12, "kind": "world",      "master_frame": 3, "t_start": 41.0,  "t_end": 45.0,  "beat": "piercing purple-indigo energy flash cutting through a rain alley, synthwave spark, empty street", "file": "fm12_world_purple_flash.jpg", "sfx": null, "dialogue": null},
-    {"id": 13, "kind": "star",       "master_frame": 3, "t_start": 45.0,  "t_end": 50.5,  "beat": "hero starring turns sharply toward flash; blue eyes igniting with intense neon spark, leather sleeve reflecting purple", "file": "fm13_star_spark_eyes.jpg", "sfx": null, "dialogue": "There..."},
-    {"id": 14, "kind": "supporting", "master_frame": 3, "t_start": 50.5,  "t_end": 54.0,  "beat": "rack-focus detail: black leather sleeve catching violet flash; face out of frame", "file": "fm14_sup_sleeve_flash.jpg", "sfx": null, "dialogue": null},
-    {"id": 15, "kind": "star",       "master_frame": 3, "t_start": 54.0,  "t_end": 58.0,  "beat": "hero mid-stride starring, pointing toward the spark trail, high ponytail, comic speed lines", "file": "fm15_star_points_trail.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 16, "kind": "broll",      "master_frame": 4, "t_start": 58.0,  "t_end": 61.5,  "beat": "b-roll: stylized halftone steam clouds escaping copper valve mouths, no people", "file": "fm16_broll_halftone_steam.jpg", "sfx": "HIIIIISSSSSSS", "dialogue": null},
-    {"id": 17, "kind": "world",      "master_frame": 4, "t_start": 61.5,  "t_end": 65.5,  "beat": "steampunk valves hissing violent vapor; raindrops suspended mid-air; copper industrial distortion", "file": "fm17_world_steam_valves.jpg", "sfx": null, "dialogue": null},
-    {"id": 18, "kind": "star",       "master_frame": 4, "t_start": 65.5,  "t_end": 70.5,  "beat": "hero starring lean-forward sprint posture, high ponytail flaring back, locking gaze on the source, border-breaking diagonal energy", "file": "fm18_star_sprint_ready.jpg", "sfx": null, "dialogue": null},
-    {"id": 19, "kind": "world",      "master_frame": 4, "t_start": 70.5,  "t_end": 74.5,  "beat": "bold perspective lines through copper pipe corridor; pressure swell, no people", "file": "fm19_world_pipe_perspective.jpg", "sfx": null, "dialogue": null},
-    {"id": 20, "kind": "supporting", "master_frame": 4, "t_start": 74.5,  "t_end": 78.0,  "beat": "hero hands gripping a brass rail; face out of frame; steam and neon swirl", "file": "fm20_sup_hands_rail.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 21, "kind": "broll",      "master_frame": 5, "t_start": 78.0,  "t_end": 81.5,  "beat": "b-roll: pure speed-streak abstract — hot pink and brass motion ribbons on void black, no people", "file": "fm21_broll_speed_ribbons.jpg", "sfx": "WHOOSH", "dialogue": null},
-    {"id": 22, "kind": "star",       "master_frame": 5, "t_start": 81.5,  "t_end": 87.0,  "beat": "kinetic splash starring: hero full sprint chasing fading purple trail, pink highlights on leather, speed streaks", "file": "fm22_star_velocity_chase.jpg", "sfx": null, "dialogue": null},
-    {"id": 23, "kind": "world",      "master_frame": 5, "t_start": 87.0,  "t_end": 91.5,  "beat": "maze of copper-piped neon-drenched retro-futuristic city blocks with motion trails, empty chase corridor", "file": "fm23_world_copper_maze.jpg", "sfx": null, "dialogue": null},
-    {"id": 24, "kind": "supporting", "master_frame": 5, "t_start": 91.5,  "t_end": 95.5,  "beat": "boots pounding wet neon street; copper buckles and tactical straps; face out of frame; THUD rhythm", "file": "fm24_sup_boots_thud.jpg", "sfx": "THUD-THUD-THUD", "dialogue": null},
-    {"id": 25, "kind": "world",      "master_frame": 5, "t_start": 95.5,  "t_end": 100.0, "beat": "flying rain droplets and sweeping hot-pink / brass motion trails blending into void black", "file": "fm25_world_motion_trails.jpg", "sfx": null, "dialogue": null},
-    {"id": 26, "kind": "star",       "master_frame": 5, "t_start": 100.0, "t_end": 105.0, "beat": "hero starring vaults a copper pipe railing mid-chase, jacket flaring, neon rim, comic impact lines", "file": "fm26_star_vault_rail.jpg", "sfx": null, "dialogue": null},
-    {"id": 27, "kind": "world",      "master_frame": 5, "t_start": 105.0, "t_end": 108.0, "beat": "empty neon intersection with fading purple trail arrow into alley, no people", "file": "fm27_world_trail_intersection.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 28, "kind": "broll",      "master_frame": 6, "t_start": 108.0, "t_end": 112.0, "beat": "b-roll: soft indigo light through stained steampunk glass panes and vine silhouettes, no people", "file": "fm28_broll_glass_indigo.jpg", "sfx": "HUMMMMM", "dialogue": null},
-    {"id": 29, "kind": "star",       "master_frame": 6, "t_start": 112.0, "t_end": 118.0, "beat": "hero starring inside overgrown ancient steampunk glass conservatory; soft ethereal indigo; jacket grid seams beginning to glow", "file": "fm29_star_conservatory.jpg", "sfx": null, "dialogue": "I can still see your ghost in the code..."},
-    {"id": 30, "kind": "world",      "master_frame": 6, "t_start": 118.0, "t_end": 122.5, "beat": "floating holographic neon memories / silhouettes among glass and vines, no clear hero face", "file": "fm30_world_holo_memories.jpg", "sfx": null, "dialogue": null},
-    {"id": 31, "kind": "world",      "master_frame": 6, "t_start": 122.5, "t_end": 127.0, "beat": "macro: rain droplets frozen mid-air reflecting glowing cyan data streams", "file": "fm31_world_frozen_droplets.jpg", "sfx": null, "dialogue": null},
-    {"id": 32, "kind": "supporting", "master_frame": 6, "t_start": 127.0, "t_end": 132.0, "beat": "soft mid-ground hero presence among holograms; conservatory architecture dominates; indigo light", "file": "fm32_sup_ghost_presence.jpg", "sfx": null, "dialogue": null},
-    {"id": 33, "kind": "star",       "master_frame": 6, "t_start": 132.0, "t_end": 138.0, "beat": "hero starring reaches toward a floating hologram face; whispered resolve; soft indigo rim", "file": "fm33_star_reach_holo.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 34, "kind": "broll",      "master_frame": 7, "t_start": 138.0, "t_end": 141.5, "beat": "b-roll: purple voltage arcing along industrial pipe seams, no people", "file": "fm34_broll_voltage_arc.jpg", "sfx": "CRACK-SHATTER!", "dialogue": null},
-    {"id": 35, "kind": "world",      "master_frame": 7, "t_start": 141.5, "t_end": 146.0, "beat": "industrial pipes glowing/vibrating with overloading purple voltage; glass panes shattering outward in reverse slow-motion", "file": "fm35_world_glass_shatter.jpg", "sfx": null, "dialogue": null},
-    {"id": 36, "kind": "star",       "master_frame": 7, "t_start": 146.0, "t_end": 152.0, "beat": "low-angle starring push-in: hero looks into camera with absolute resolve; boots ignite with synthwave energy grid; right-eye indigo ocular glow activating", "file": "fm36_star_resolve.jpg", "sfx": null, "dialogue": null},
-    {"id": 37, "kind": "supporting", "master_frame": 7, "t_start": 152.0, "t_end": 156.0, "beat": "close on glowing cybernetic ocular enhancement (indigo) and crackling pink grid seams on leather; face partial", "file": "fm37_sup_ocular_grid.jpg", "sfx": null, "dialogue": null},
-    {"id": 38, "kind": "world",      "master_frame": 7, "t_start": 156.0, "t_end": 160.0, "beat": "shattered glass shards hanging mid-air catching neon grid reflections, no people", "file": "fm38_world_glass_hang.jpg", "sfx": null, "dialogue": null},
-
-    {"id": 39, "kind": "broll",      "master_frame": 8, "t_start": 160.0, "t_end": 163.5, "beat": "b-roll: concentric neon vortex grids only — synthwave horizon + golden clockwork shards, no people", "file": "fm39_broll_vortex_core.jpg", "sfx": "VROOOOOM-ZAP!", "dialogue": null},
-    {"id": 40, "kind": "star",       "master_frame": 8, "t_start": 163.5, "t_end": 169.5, "beat": "hero starring leaps from shattered conservatory spire into massive neon grid vortex below; jacket trails hot pink and gold light", "file": "fm40_star_vortex_leap.jpg", "sfx": null, "dialogue": null},
-    {"id": 41, "kind": "world",      "master_frame": 8, "t_start": 169.5, "t_end": 174.0, "beat": "concentric neon vortex grids, 80s synthwave horizon lines, floating golden steampunk clockwork shards, no people", "file": "fm41_world_neon_vortex.jpg", "sfx": null, "dialogue": null},
-    {"id": 42, "kind": "supporting", "master_frame": 8, "t_start": 174.0, "t_end": 178.5, "beat": "overlapping action: outstretched hero hand reaching through magenta-gold light; silhouette dominates", "file": "fm42_sup_reaching_hand.jpg", "sfx": null, "dialogue": null},
-    {"id": 43, "kind": "star",       "master_frame": 8, "t_start": 178.5, "t_end": 185.0, "beat": "climactic starring reconnection: hero grasps glowing silhouette hand; absolute resolve; digital ink shards beginning", "file": "fm43_star_caught_you.jpg", "sfx": null, "dialogue": "Caught you."},
-    {"id": 44, "kind": "world",      "master_frame": 8, "t_start": 185.0, "t_end": 189.5, "beat": "void shattering into beautiful digital ink shards of gold magenta cyan; empty afterimage of reconnection light", "file": "fm44_world_ink_shards.jpg", "sfx": null, "dialogue": null},
-    {"id": 45, "kind": "star",       "master_frame": 8, "t_start": 189.5, "t_end": 195.0, "beat": "hero starring and glowing silhouette together in residual neon calm after the shatter; soft gold-magenta rim", "file": "fm45_star_afterglow.jpg", "sfx": null, "dialogue": null},
-    {"id": 46, "kind": "world",      "master_frame": 8, "t_start": 195.0, "t_end": 198.5, "beat": "empty rain street after the chase; quiet neon pulse, no people", "file": "fm46_world_quiet_street.jpg", "sfx": null, "dialogue": null},
-    {"id": 47, "kind": "supporting", "master_frame": 8, "t_start": 198.5, "t_end": 201.5, "beat": "edge of frame: hero jacket and glowing pink grid seams only; void city is subject", "file": "fm47_sup_jacket_edge.jpg", "sfx": null, "dialogue": null},
-    {"id": 48, "kind": "world",      "master_frame": 8, "t_start": 201.5, "t_end": 204.0, "beat": "final void black with a single fading cyan rain droplet and gold ink shard, no people", "file": "fm48_world_final_droplet.jpg", "sfx": null, "dialogue": null}
-  ]
+    {
+      "id": 1,
+      "kind": "broll",
+      "master_frame": 1,
+      "t_start": 0.0,
+      "t_end": 3.5,
+      "beat": "b-roll: extreme wide empty rain city skyline \u2014 gothic towers, copper pipes, cyan hologram haze, no people",
+      "file": "fm01_broll_skyline.jpg",
+      "sfx": "SHHHHHHHHH",
+      "dialogue": null
+    },
+    {
+      "id": 2,
+      "kind": "world",
+      "master_frame": 1,
+      "t_start": 3.5,
+      "t_end": 7.0,
+      "beat": "wide rain-slicked void street: retro-steampunk pipes and glowing cyberpunk holograms, neon purple puddles, no people",
+      "file": "fm02_world_rain_void.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 3,
+      "kind": "star",
+      "master_frame": 1,
+      "t_start": 7.0,
+      "t_end": 12.0,
+      "beat": "hero starring under heavy neon downpour, black leather jacket collar up, long blonde hair streaming, reflective purple puddle glow on jacket",
+      "file": "fm03_star_rain_hero.jpg",
+      "sfx": null,
+      "dialogue": "The rain washes over the neon, but it can't clear the signal..."
+    },
+    {
+      "id": 4,
+      "kind": "supporting",
+      "master_frame": 1,
+      "t_start": 12.0,
+      "t_end": 15.0,
+      "beat": "over-shoulder: hero watches distant neon signal through rain; city dominates frame",
+      "file": "fm04_sup_overshoulder_rain.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 5,
+      "kind": "world",
+      "master_frame": 1,
+      "t_start": 15.0,
+      "t_end": 18.0,
+      "beat": "extreme close on neon-lit rain streaks and copper pipe reflections in puddles, deep ink shadows",
+      "file": "fm05_world_puddle_glow.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 6,
+      "kind": "broll",
+      "master_frame": 2,
+      "t_start": 18.0,
+      "t_end": 21.5,
+      "beat": "b-roll: macro brass gear teeth meshing with cyan oil sheen, no people",
+      "file": "fm06_broll_gear_macro.jpg",
+      "sfx": "CLANK-WHIRR",
+      "dialogue": null
+    },
+    {
+      "id": 7,
+      "kind": "star",
+      "master_frame": 2,
+      "t_start": 21.5,
+      "t_end": 26.5,
+      "beat": "low-angle dramatic close-up starring: hero face skyward, rain beads, sharp pink neon rim light on jawline and hair, blue eyes",
+      "file": "fm07_star_skyward.jpg",
+      "sfx": null,
+      "dialogue": "Where do you run in a city this loud?"
+    },
+    {
+      "id": 8,
+      "kind": "world",
+      "master_frame": 2,
+      "t_start": 26.5,
+      "t_end": 30.5,
+      "beat": "massive brass gears turning slowly behind colossal neon billboard displays, industrial copper, no face",
+      "file": "fm08_world_brass_gears.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 9,
+      "kind": "supporting",
+      "master_frame": 2,
+      "t_start": 30.5,
+      "t_end": 34.0,
+      "beat": "thick ink border profile; hero eye and rain-wet cheek at edge of frame, gears dominate",
+      "file": "fm09_sup_eye_edge.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 10,
+      "kind": "world",
+      "master_frame": 2,
+      "t_start": 34.0,
+      "t_end": 38.0,
+      "beat": "empty copper catwalk over neon void, steam vents, no people",
+      "file": "fm10_world_copper_catwalk.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 11,
+      "kind": "broll",
+      "master_frame": 3,
+      "t_start": 38.0,
+      "t_end": 41.0,
+      "beat": "b-roll: abstract jagged purple-indigo energy crackling across wet asphalt, no people",
+      "file": "fm11_broll_energy_crack.jpg",
+      "sfx": "BZZZZZZT-KRAK!",
+      "dialogue": null
+    },
+    {
+      "id": 12,
+      "kind": "world",
+      "master_frame": 3,
+      "t_start": 41.0,
+      "t_end": 45.0,
+      "beat": "piercing purple-indigo energy flash cutting through a rain alley, synthwave spark, empty street",
+      "file": "fm12_world_purple_flash.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 13,
+      "kind": "star",
+      "master_frame": 3,
+      "t_start": 45.0,
+      "t_end": 50.5,
+      "beat": "hero starring turns sharply toward flash; blue eyes igniting with intense neon spark, leather sleeve reflecting purple",
+      "file": "fm13_star_spark_eyes.jpg",
+      "sfx": null,
+      "dialogue": "There..."
+    },
+    {
+      "id": 14,
+      "kind": "supporting",
+      "master_frame": 3,
+      "t_start": 50.5,
+      "t_end": 54.0,
+      "beat": "rack-focus detail: black leather sleeve catching violet flash; face out of frame",
+      "file": "fm14_sup_sleeve_flash.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 15,
+      "kind": "star",
+      "master_frame": 3,
+      "t_start": 54.0,
+      "t_end": 58.0,
+      "beat": "hero mid-stride starring, pointing toward the spark trail, high ponytail, comic speed lines",
+      "file": "fm15_star_points_trail.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 16,
+      "kind": "broll",
+      "master_frame": 4,
+      "t_start": 58.0,
+      "t_end": 61.5,
+      "beat": "b-roll: stylized halftone steam clouds escaping copper valve mouths, no people",
+      "file": "fm16_broll_halftone_steam.jpg",
+      "sfx": "HIIIIISSSSSSS",
+      "dialogue": null
+    },
+    {
+      "id": 17,
+      "kind": "world",
+      "master_frame": 4,
+      "t_start": 61.5,
+      "t_end": 65.5,
+      "beat": "steampunk valves hissing violent vapor; raindrops suspended mid-air; copper industrial distortion",
+      "file": "fm17_world_steam_valves.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 18,
+      "kind": "star",
+      "master_frame": 4,
+      "t_start": 65.5,
+      "t_end": 70.5,
+      "beat": "hero starring lean-forward sprint posture, high ponytail flaring back, locking gaze on the source, border-breaking diagonal energy",
+      "file": "fm18_star_sprint_ready.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 19,
+      "kind": "world",
+      "master_frame": 4,
+      "t_start": 70.5,
+      "t_end": 74.5,
+      "beat": "bold perspective lines through copper pipe corridor; pressure swell, no people",
+      "file": "fm19_world_pipe_perspective.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 20,
+      "kind": "supporting",
+      "master_frame": 4,
+      "t_start": 74.5,
+      "t_end": 78.0,
+      "beat": "hero hands gripping a brass rail; face out of frame; steam and neon swirl",
+      "file": "fm20_sup_hands_rail.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 21,
+      "kind": "broll",
+      "master_frame": 5,
+      "t_start": 78.0,
+      "t_end": 81.5,
+      "beat": "b-roll: pure speed-streak abstract \u2014 hot pink and brass motion ribbons on void black, no people",
+      "file": "fm21_broll_speed_ribbons.jpg",
+      "sfx": "WHOOSH",
+      "dialogue": null
+    },
+    {
+      "id": 22,
+      "kind": "star",
+      "master_frame": 5,
+      "t_start": 81.5,
+      "t_end": 87.0,
+      "beat": "kinetic splash starring: hero full sprint chasing fading purple trail, pink highlights on leather, speed streaks",
+      "file": "fm22_star_velocity_chase.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 23,
+      "kind": "world",
+      "master_frame": 5,
+      "t_start": 87.0,
+      "t_end": 91.5,
+      "beat": "maze of copper-piped neon-drenched retro-futuristic city blocks with motion trails, empty chase corridor",
+      "file": "fm23_world_copper_maze.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 24,
+      "kind": "supporting",
+      "master_frame": 5,
+      "t_start": 91.5,
+      "t_end": 95.5,
+      "beat": "boots pounding wet neon street; copper buckles and tactical straps; face out of frame; THUD rhythm",
+      "file": "fm24_sup_boots_thud.jpg",
+      "sfx": "THUD-THUD-THUD",
+      "dialogue": null
+    },
+    {
+      "id": 25,
+      "kind": "world",
+      "master_frame": 5,
+      "t_start": 95.5,
+      "t_end": 100.0,
+      "beat": "flying rain droplets and sweeping hot-pink / brass motion trails blending into void black",
+      "file": "fm25_world_motion_trails.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 26,
+      "kind": "star",
+      "master_frame": 5,
+      "t_start": 100.0,
+      "t_end": 105.0,
+      "beat": "hero starring vaults a copper pipe railing mid-chase, jacket flaring, neon rim, comic impact lines",
+      "file": "fm26_star_vault_rail.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 27,
+      "kind": "world",
+      "master_frame": 5,
+      "t_start": 105.0,
+      "t_end": 108.0,
+      "beat": "empty neon intersection with fading purple trail arrow into alley, no people",
+      "file": "fm27_world_trail_intersection.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 28,
+      "kind": "broll",
+      "master_frame": 6,
+      "t_start": 108.0,
+      "t_end": 112.0,
+      "beat": "b-roll: soft indigo light through stained steampunk glass panes and vine silhouettes, no people",
+      "file": "fm28_broll_glass_indigo.jpg",
+      "sfx": "HUMMMMM",
+      "dialogue": null
+    },
+    {
+      "id": 29,
+      "kind": "star",
+      "master_frame": 6,
+      "t_start": 112.0,
+      "t_end": 118.0,
+      "beat": "hero starring inside overgrown ancient steampunk glass conservatory; soft ethereal indigo; jacket grid seams beginning to glow",
+      "file": "fm29_star_conservatory.jpg",
+      "sfx": null,
+      "dialogue": "I can still see your ghost in the code..."
+    },
+    {
+      "id": 30,
+      "kind": "world",
+      "master_frame": 6,
+      "t_start": 118.0,
+      "t_end": 122.5,
+      "beat": "floating holographic neon memories / silhouettes among glass and vines, no clear hero face",
+      "file": "fm30_world_holo_memories.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 31,
+      "kind": "world",
+      "master_frame": 6,
+      "t_start": 122.5,
+      "t_end": 127.0,
+      "beat": "macro: rain droplets frozen mid-air reflecting glowing cyan data streams",
+      "file": "fm31_world_frozen_droplets.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 32,
+      "kind": "supporting",
+      "master_frame": 6,
+      "t_start": 127.0,
+      "t_end": 132.0,
+      "beat": "soft mid-ground hero presence among holograms; conservatory architecture dominates; indigo light",
+      "file": "fm32_sup_ghost_presence.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 33,
+      "kind": "star",
+      "master_frame": 6,
+      "t_start": 132.0,
+      "t_end": 138.0,
+      "beat": "hero starring reaches toward a floating hologram face; whispered resolve; soft indigo rim",
+      "file": "fm33_star_reach_holo.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 34,
+      "kind": "broll",
+      "master_frame": 7,
+      "t_start": 138.0,
+      "t_end": 141.5,
+      "beat": "b-roll: purple voltage arcing along industrial pipe seams, no people",
+      "file": "fm34_broll_voltage_arc.jpg",
+      "sfx": "CRACK-SHATTER!",
+      "dialogue": null
+    },
+    {
+      "id": 35,
+      "kind": "world",
+      "master_frame": 7,
+      "t_start": 141.5,
+      "t_end": 146.0,
+      "beat": "industrial pipes glowing/vibrating with overloading purple voltage; glass panes shattering outward in reverse slow-motion",
+      "file": "fm35_world_glass_shatter.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 36,
+      "kind": "star",
+      "master_frame": 7,
+      "t_start": 146.0,
+      "t_end": 152.0,
+      "beat": "low-angle starring push-in: hero looks into camera with absolute resolve; boots ignite with synthwave energy grid; right-eye indigo ocular glow activating",
+      "file": "fm36_star_resolve.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 37,
+      "kind": "supporting",
+      "master_frame": 7,
+      "t_start": 152.0,
+      "t_end": 156.0,
+      "beat": "close on glowing cybernetic ocular enhancement (indigo) and crackling pink grid seams on leather; face partial",
+      "file": "fm37_sup_ocular_grid.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 38,
+      "kind": "world",
+      "master_frame": 7,
+      "t_start": 156.0,
+      "t_end": 160.0,
+      "beat": "shattered glass shards hanging mid-air catching neon grid reflections, no people",
+      "file": "fm38_world_glass_hang.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 39,
+      "kind": "broll",
+      "master_frame": 8,
+      "t_start": 160.0,
+      "t_end": 163.5,
+      "beat": "b-roll: concentric neon vortex grids only \u2014 synthwave horizon + golden clockwork shards, no people",
+      "file": "fm39_broll_vortex_core.jpg",
+      "sfx": "VROOOOOM-ZAP!",
+      "dialogue": null
+    },
+    {
+      "id": 40,
+      "kind": "star",
+      "master_frame": 8,
+      "t_start": 163.5,
+      "t_end": 169.5,
+      "beat": "hero starring leaps from shattered conservatory spire into massive neon grid vortex below; jacket trails hot pink and gold light",
+      "file": "fm40_star_vortex_leap.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 41,
+      "kind": "world",
+      "master_frame": 8,
+      "t_start": 169.5,
+      "t_end": 174.0,
+      "beat": "concentric neon vortex grids, 80s synthwave horizon lines, floating golden steampunk clockwork shards, no people",
+      "file": "fm41_world_neon_vortex.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 42,
+      "kind": "supporting",
+      "master_frame": 8,
+      "t_start": 174.0,
+      "t_end": 178.5,
+      "beat": "overlapping action: outstretched hero hand reaching through magenta-gold light; silhouette dominates",
+      "file": "fm42_sup_reaching_hand.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 43,
+      "kind": "star",
+      "master_frame": 8,
+      "t_start": 178.5,
+      "t_end": 185.0,
+      "beat": "climactic starring reconnection: hero grasps glowing silhouette hand; absolute resolve; digital ink shards beginning",
+      "file": "fm43_star_caught_you.jpg",
+      "sfx": null,
+      "dialogue": "Caught you."
+    },
+    {
+      "id": 44,
+      "kind": "world",
+      "master_frame": 8,
+      "t_start": 185.0,
+      "t_end": 189.5,
+      "beat": "void shattering into beautiful digital ink shards of gold magenta cyan; empty afterimage of reconnection light",
+      "file": "fm44_world_ink_shards.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 45,
+      "kind": "star",
+      "master_frame": 8,
+      "t_start": 189.5,
+      "t_end": 195.0,
+      "beat": "hero starring and glowing silhouette together in residual neon calm after the shatter; soft gold-magenta rim",
+      "file": "fm45_star_afterglow.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 46,
+      "kind": "world",
+      "master_frame": 8,
+      "t_start": 195.0,
+      "t_end": 198.5,
+      "beat": "empty rain street after the chase; quiet neon pulse, no people",
+      "file": "fm46_world_quiet_street.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 47,
+      "kind": "supporting",
+      "master_frame": 8,
+      "t_start": 198.5,
+      "t_end": 201.5,
+      "beat": "edge of frame: hero jacket and glowing pink grid seams only; void city is subject",
+      "file": "fm47_sup_jacket_edge.jpg",
+      "sfx": null,
+      "dialogue": null
+    },
+    {
+      "id": 48,
+      "kind": "world",
+      "master_frame": 8,
+      "t_start": 201.5,
+      "t_end": 204.0,
+      "beat": "final void black with a single fading cyan rain droplet and gold ink shard, no people",
+      "file": "fm48_world_final_droplet.jpg",
+      "sfx": null,
+      "dialogue": null
+    }
+  ],
+  "track_title": "I Like It Like That",
+  "scaffold_duration_sec": 204.0
 }

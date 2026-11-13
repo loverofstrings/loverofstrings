@@ -3,7 +3,7 @@
 Style: sophisticated comic-book digital art (steampunk brass + cyberpunk neon + synthwave grid)  
 Pipeline: **fal-ai/nano-banana-2** stills → **Seedance 2.0** image-to-video → ffmpeg assemble
 
-**Track is song-agnostic.** Drop any licensed audio into `assets/find_me/` as `track.m4a` / `.mp3` / `.wav`. Timings in `scene_plan.json` are a relative scaffold (~204s); retime to the real track on render.
+**Current track:** `assets/find_me/track.mp3` — *I Like It Like That* (~214s). Swap the file anytime; the 48-scene cut scales from a 204s scaffold to the track length on render.
 
 ## Run
 

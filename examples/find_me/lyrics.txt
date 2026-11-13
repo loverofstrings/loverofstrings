@@ -1,3 +1,6 @@
+# Track: I Like It Like That (drop-in)
+# Visual storyboard: Find Me comic arc
+
 [Intro]
 rain over neon signal
 where did you go

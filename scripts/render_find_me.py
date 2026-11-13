@@ -148,7 +148,7 @@ def probe_duration(path: Path) -> float:
 
 def scaled_scenes(plan: dict, target_duration: float) -> list[dict]:
     """Stretch/compress scene_plan cue lengths to match the dropped-in track."""
-    base = float(plan["duration_sec"]) or 1.0
+    base = float(plan.get("scaffold_duration_sec") or plan["duration_sec"]) or 1.0
     scale = target_duration / base
     out: list[dict] = []
     for sc in plan["scenes"]:

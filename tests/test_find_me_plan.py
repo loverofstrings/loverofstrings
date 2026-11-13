@@ -16,18 +16,20 @@ class FindMePlanTests(unittest.TestCase):
 
     def test_scene_count_and_kinds(self):
         scenes = self.plan["scenes"]
-        self.assertEqual(len(scenes), 28)
-        self.assertEqual(self.plan["scene_count"], 28)
+        self.assertEqual(len(scenes), 48)
+        self.assertEqual(self.plan["scene_count"], 48)
         kinds = [s["kind"] for s in scenes]
-        self.assertEqual(kinds.count("star"), 9)
-        self.assertEqual(kinds.count("supporting"), 6)
-        self.assertEqual(kinds.count("world"), 13)
+        self.assertEqual(kinds.count("star"), 13)
+        self.assertEqual(kinds.count("supporting"), 9)
+        self.assertEqual(kinds.count("world"), 18)
+        self.assertEqual(kinds.count("broll"), 8)
+        self.assertEqual(self.plan["broll_count"], 8)
 
     def test_master_frames_cover_all(self):
         covered = set()
         for mf in self.plan["master_frames"]:
             covered.update(mf["scenes"])
-        self.assertEqual(covered, set(range(1, 29)))
+        self.assertEqual(covered, set(range(1, 49)))
 
     def test_files_unique_and_timed(self):
         files = [s["file"] for s in self.plan["scenes"]]
@@ -42,6 +44,10 @@ class FindMePlanTests(unittest.TestCase):
         self.assertTrue((ROOT / "examples/find_me/lyrics.txt").exists())
         heroes = list((ROOT / "assets/find_me/hero").glob("hero_*.*"))
         self.assertGreaterEqual(len(heroes), 2)
+
+    def test_track_is_song_agnostic(self):
+        self.assertIsNone(self.plan.get("artist"))
+        self.assertIn("track_note", self.plan)
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ def comic_grade(im: Image.Image, *, seed: int, kind: str, master_frame: int) -> 
 
     # Phase shift: pursuit (1-5) vs finale void (6-8)
     finale = master_frame >= 6
+    atmosphere = kind in ("world", "broll")
 
     r, g, b = im.split()
     if finale:
@@ -69,8 +70,8 @@ def comic_grade(im: Image.Image, *, seed: int, kind: str, master_frame: int) -> 
     black = Image.new("RGB", (target_w, target_h), VOID)
     im = Image.composite(im, black, mask)
 
-    # Diagonal rain streaks for world / rain frames
-    if kind == "world" or master_frame in {1, 2, 5} or rng.random() < 0.4:
+    # Diagonal rain streaks for world / b-roll / rain frames
+    if atmosphere or master_frame in {1, 2, 5} or rng.random() < 0.4:
         overlay = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
         od = ImageDraw.Draw(overlay)
         for _ in range(90):
@@ -96,8 +97,8 @@ def comic_grade(im: Image.Image, *, seed: int, kind: str, master_frame: int) -> 
             od.ellipse([x, y, x + 2, y + 2], fill=(*BRASS, 120))
         im = Image.alpha_composite(im.convert("RGBA"), overlay).convert("RGB")
 
-    # Halftone-ish scan for steam / industrial world
-    if kind == "world" and master_frame in {2, 4, 5}:
+    # Halftone-ish scan for steam / industrial world / b-roll
+    if atmosphere and master_frame in {2, 4, 5}:
         px = im.load()
         for y in range(0, target_h, 4):
             for x in range(0, target_w, 4):
@@ -120,6 +121,7 @@ def pick_sources() -> dict[str, list[Path]]:
         "star": heroes,
         "supporting": list(reversed(heroes)),
         "world": heroes[::1],
+        "broll": list(reversed(heroes)),
     }
 
 

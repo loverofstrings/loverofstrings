@@ -68,6 +68,11 @@ def still_prompt(kind: str, beat: str, master_frame: int) -> str:
             f"Story atmosphere leads. {HERO} May appear partial, distant, or at the edge — "
             "not the hero of the shot."
         )
+    elif kind == "broll":
+        role = (
+            "B-roll insert only. Pure atmosphere / texture / abstract environment. "
+            "No people, no faces, no hero. Graphic-novel detail plate."
+        )
     else:
         role = (
             "World / atmosphere only. No clear hero face. Empty rain-noir steampunk-cyber "
@@ -86,6 +91,8 @@ def motion_prompt(kind: str, beat: str) -> str:
         role = "Hero character is the focus; gentle hair, rain, and light motion."
     elif kind == "supporting":
         role = "Story atmosphere leads; keep any figure secondary."
+    elif kind == "broll":
+        role = "B-roll atmosphere only; animate texture, light, rain, steam — no people."
     else:
         role = "No hero close-up; animate environment, rain, gears, neon glow."
     return f"{base} {role} Scene: {beat}"
@@ -116,18 +123,23 @@ def curated_hero_paths() -> list[Path]:
 
 
 def find_track() -> Path | None:
-    candidates = [
-        ROOT / "assets/find_me/Find_Me.m4a",
-        ROOT / "assets/find_me/Find_Me.mp3",
-        ROOT / "assets/find_me/find_me.m4a",
-        ROOT / "assets/find_me/find_me.mp3",
-        ROOT / "assets/Find_Me.m4a",
-        ROOT / "assets/Find_Me.mp3",
+    """Any licensed track dropped into assets/find_me/ (not locked to a song title)."""
+    track_dir = ROOT / "assets/find_me"
+    preferred = [
+        track_dir / "track.m4a",
+        track_dir / "track.mp3",
+        track_dir / "track.wav",
     ]
-    for p in candidates:
+    for p in preferred:
         if p.exists():
             return p
-    return None
+    audio: list[Path] = []
+    for ext in ("*.m4a", "*.mp3", "*.wav", "*.aac", "*.flac"):
+        audio.extend(track_dir.glob(ext))
+    # Ignore silent timing beds
+    audio = [p for p in audio if "timing_bed" not in p.name.lower()]
+    audio.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return audio[0] if audio else None
 
 
 def generate_stills(plan: dict, ref_urls: list[str], scenes_dir: Path) -> list[Path]:
@@ -143,6 +155,7 @@ def generate_stills(plan: dict, ref_urls: list[str], scenes_dir: Path) -> list[P
         urls = ref_urls if sc["kind"] in ("star", "supporting") else None
         print(f"  generating still {sc['id']:02d} ({sc['kind']})…")
         generate_still(prompt, dest, image_urls=urls, aspect_ratio="9:16", resolution="1K")
+        # broll/world: no likeness refs (urls already None)
         paths.append(dest)
     return paths
 
@@ -201,7 +214,7 @@ def main() -> int:
         transition="cut",
         title="Find Me",
         scene_count=len(plan["scenes"]),
-        extra={"star_ratio": 0.32, "allow_shake": False},
+        extra={"star_ratio": 0.27, "allow_shake": False},
     )
 
     if not fal_available():
@@ -221,8 +234,8 @@ def main() -> int:
         existing = [scenes_dir / s["file"] for s in plan["scenes"]]
         if track is None:
             print(
-                "Track missing — place audio at assets/find_me/Find_Me.m4a "
-                "(or .mp3). Stills are ready under examples/find_me/scenes/.",
+                "Track missing — drop any licensed audio into assets/find_me/ "
+                "(track.m4a / .mp3 / .wav). Stills are ready under examples/find_me/scenes/.",
                 file=sys.stderr,
             )
             return 0
@@ -243,7 +256,7 @@ def main() -> int:
 
     if track is None:
         print(
-            "Track missing — place audio at assets/find_me/Find_Me.m4a before full mux.",
+            "Track missing — drop any licensed audio into assets/find_me/ before full mux.",
             file=sys.stderr,
         )
 

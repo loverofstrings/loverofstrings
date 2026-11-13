@@ -22,15 +22,18 @@ FPS = 30
 
 
 def find_track() -> Path | None:
-    for p in [
-        ROOT / "assets/find_me/Find_Me.m4a",
-        ROOT / "assets/find_me/Find_Me.mp3",
-        ROOT / "assets/find_me/find_me.m4a",
-        ROOT / "assets/find_me/find_me.mp3",
-    ]:
+    """Any licensed track in assets/find_me/ (song-agnostic)."""
+    track_dir = ROOT / "assets/find_me"
+    for name in ("track.m4a", "track.mp3", "track.wav"):
+        p = track_dir / name
         if p.exists():
             return p
-    return None
+    audio: list[Path] = []
+    for ext in ("*.m4a", "*.mp3", "*.wav", "*.aac", "*.flac"):
+        audio.extend(track_dir.glob(ext))
+    audio = [p for p in audio if "timing_bed" not in p.name.lower()]
+    audio.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return audio[0] if audio else None
 
 
 def ensure_timing_bed(duration: float, dest: Path) -> Path:
@@ -62,9 +65,8 @@ def ensure_timing_bed(duration: float, dest: Path) -> Path:
 
 
 def zoompan(kind: str, frames: int) -> str:
-    """Gentle camera motion; starring pushes in, world drifts, supporting pans."""
+    """Gentle camera motion; starring pushes in, world/b-roll drifts, supporting pans."""
     if kind == "star":
-        # Slow push-in
         return (
             f"scale=8000:-1,zoompan=z='min(zoom+0.0009,1.18)':"
             f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
@@ -74,7 +76,12 @@ def zoompan(kind: str, frames: int) -> str:
             f"scale=8000:-1,zoompan=z='1.08':"
             f"x='iw/2-(iw/zoom/2)+on*0.35':y='ih/2-(ih/zoom/2)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
         )
-    # world — slow drift + slight zoom
+    if kind == "broll":
+        # slower texture drift for inserts
+        return (
+            f"scale=8000:-1,zoompan=z='min(1.04+on*0.00025,1.1)':"
+            f"x='iw/2-(iw/zoom/2)+on*0.12':y='ih/2-(ih/zoom/2)-on*0.08':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
+        )
     return (
         f"scale=8000:-1,zoompan=z='min(1.05+on*0.0004,1.12)':"
         f"x='iw/2-(iw/zoom/2)-on*0.2':y='ih/2-(ih/zoom/2)+on*0.15':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"

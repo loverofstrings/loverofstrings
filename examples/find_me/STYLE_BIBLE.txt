@@ -25,6 +25,11 @@ COSTUME:
   ocular enhancement activates indigo.
 
 PACING / CASTING:
-~33% starring hero frames; rest are world/story; some supporting (distant, partial,
-over-shoulder, edge of frame) without starring.
+~29% starring hero frames; supporting (distant, partial, over-shoulder, edge of frame);
+world story plates; plus dedicated **b-roll** inserts (texture / skyline / steam / energy /
+vortex — no people) for breathing room between narrative beats.
 No watermarks, no logos, no Remini text, no readable UI chrome.
+
+TRACK:
+Song-agnostic. Drop any licensed audio into assets/find_me/ as track.m4a/.mp3/.wav.
+Do not hardcode a commercial track title into the cut.

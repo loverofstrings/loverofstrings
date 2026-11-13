@@ -5,6 +5,15 @@ Pipeline: **fal-ai/nano-banana-2** stills → **Seedance 2.0** image-to-video �
 
 **Current track:** `assets/find_me/track.mp3` — *I Like It Like That* (~214s). Swap the file anytime; the 48-scene cut scales from a 204s scaffold to the track length on render.
 
+## Animate stills → video (Seedance)
+
+Requires `FAL_KEY`. Turns **all 48** storyboard stills into motion clips, then muxes `track.mp3`.
+
+```bash
+python3 scripts/animate_find_me.py
+# → output/find_me/Find_Me_music_video.mp4
+```
+
 ## Run
 
 ```bash

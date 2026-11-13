@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Animate every Find Me still with Seedance I2V, then mux to the dropped-in track.
+"""Animate every Find Me still with Seedance I2V (local motion fallback), mux track.
 
-Requires FAL_KEY (or FAL_API_KEY). Uses assets/find_me/track.* for duration + audio.
+Requires FAL_KEY. Seedance often rejects hero-likeness stills (content policy);
+those scenes fall back to strong local camera-motion clips so the full cut completes.
 """
 
 from __future__ import annotations
@@ -9,8 +10,11 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -23,13 +27,13 @@ from music_video.fal_gen import (  # noqa: E402
     upload_file,
 )
 
-WORKERS = 3
-
 PLAN = ROOT / "examples/find_me/scene_plan.json"
 SCENES = ROOT / "examples/find_me/scenes"
 OUT = ROOT / "output/find_me/Find_Me_music_video.mp4"
 CLIPS = ROOT / "output/find_me/seedance_clips"
 WIDTH, HEIGHT = 1080, 1920
+FPS = 30
+WORKERS = 3
 
 
 def find_track() -> Path | None:
@@ -48,15 +52,7 @@ def find_track() -> Path | None:
 
 def probe_duration(path: Path) -> float:
     out = subprocess.check_output(
-        [
-            "ffprobe",
-            "-v",
-            "quiet",
-            "-print_format",
-            "json",
-            "-show_format",
-            str(path),
-        ],
+        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(path)],
         text=True,
     )
     return float(json.loads(out)["format"]["duration"])
@@ -94,11 +90,77 @@ def motion_prompt(kind: str, beat: str) -> str:
     return f"{base} {role} Scene: {beat}"
 
 
+def _is_policy_error(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    return (
+        "content_policy" in text
+        or "likeness" in text
+        or "real people" in text
+        or "model_moderated" in text
+        or "422" in text
+    )
+
+
+def local_motion_clip(still: Path, dest: Path, duration: float, kind: str) -> None:
+    """Fallback: turn still into timed motion MP4 when Seedance rejects likeness."""
+    frames = max(1, int(round(duration * FPS)))
+    with tempfile.TemporaryDirectory() as td:
+        prep = Path(td) / "prep.jpg"
+        img = Image.open(still).convert("RGB")
+        ImageOps.fit(
+            img, (int(WIDTH * 1.4), int(HEIGHT * 1.4)), method=Image.Resampling.LANCZOS
+        ).save(prep, quality=95)
+        if kind == "star":
+            zp = (
+                f"scale=9000:-1,zoompan=z='min(zoom+0.0018,1.3)':"
+                f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
+            )
+        elif kind == "supporting":
+            zp = (
+                f"scale=9000:-1,zoompan=z='1.12':"
+                f"x='iw/2-(iw/zoom/2)+on*0.45':y='ih/2-(ih/zoom/2)':d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
+            )
+        else:
+            zp = (
+                f"scale=9000:-1,zoompan=z='min(1.06+on*0.0006,1.2)':"
+                f"x='iw/2-(iw/zoom/2)-on*0.35':y='ih/2-(ih/zoom/2)+on*0.2':"
+                f"d={frames}:s={WIDTH}x{HEIGHT}:fps={FPS}"
+            )
+        vf = zp + ",eq=contrast=1.05:saturation=1.1,format=yuv420p"
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-loop",
+                "1",
+                "-i",
+                str(prep),
+                "-vf",
+                vf,
+                "-t",
+                f"{duration:.3f}",
+                "-r",
+                str(FPS),
+                "-an",
+                "-c:v",
+                "libx264",
+                "-preset",
+                "veryfast",
+                "-crf",
+                "18",
+                "-pix_fmt",
+                "yuv420p",
+                str(dest),
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+
 def main() -> int:
     if not fal_available():
         print(
-            "FAL_KEY is required to turn stills into Seedance videos.\n"
-            "Add FAL_KEY to Cloud Agent secrets (https://fal.ai/dashboard/keys), then rerun:\n"
+            "FAL_KEY is required for Seedance. Add it, then rerun:\n"
             "  python3 scripts/animate_find_me.py",
             file=sys.stderr,
         )
@@ -112,11 +174,12 @@ def main() -> int:
 
     target = probe_duration(track)
     scenes = scaled_scenes(plan, target)
-    print(f"Animating {len(scenes)} stills → Seedance I2V for {track.name} ({target:.1f}s)")
+    print(f"Animating {len(scenes)} stills → Seedance (+ local fallback) for {track.name} ({target:.1f}s)")
 
     CLIPS.mkdir(parents=True, exist_ok=True)
+    methods: dict[int, str] = {}
 
-    def animate_one(sc: dict) -> tuple[int, Path]:
+    def animate_one(sc: dict) -> tuple[int, Path, str]:
         still = SCENES / sc["file"]
         if not still.exists():
             raise FileNotFoundError(f"Missing still: {still}")
@@ -125,47 +188,68 @@ def main() -> int:
         fit = CLIPS / f"fit_{sc['id']:02d}.mp4"
         if fit.exists() and fit.stat().st_size > 50_000:
             print(f"  skip {sc['id']:02d} ({sc['kind']}, {shot_dur:.1f}s)", flush=True)
-            return sc["id"], fit
-        print(f"  animate {sc['id']:02d}/{len(scenes)} ({sc['kind']}, {shot_dur:.1f}s)…", flush=True)
-        image_url = upload_file(still)
-        seed_dur = int(round(min(8.0, max(4.0, shot_dur))))
-        animate_image(
-            motion_prompt(sc["kind"], sc["beat"]),
-            raw,
-            image_url=image_url,
-            duration=seed_dur,
-            resolution="720p",
-            aspect_ratio="9:16",
-            generate_audio=False,
-            fast=True,
-        )
-        _fit_clip(raw, fit, shot_dur, WIDTH, HEIGHT)
-        print(f"  done {sc['id']:02d}", flush=True)
-        return sc["id"], fit
+            return sc["id"], fit, "existing"
+
+        # Prefer Seedance for world/broll; still try star/supporting then fall back
+        try:
+            print(f"  animate {sc['id']:02d}/{len(scenes)} ({sc['kind']}, {shot_dur:.1f}s)…", flush=True)
+            image_url = upload_file(still)
+            seed_dur = int(round(min(8.0, max(4.0, shot_dur))))
+            animate_image(
+                motion_prompt(sc["kind"], sc["beat"]),
+                raw,
+                image_url=image_url,
+                duration=seed_dur,
+                resolution="720p",
+                aspect_ratio="9:16",
+                generate_audio=False,
+                fast=True,
+            )
+            _fit_clip(raw, fit, shot_dur, WIDTH, HEIGHT)
+            print(f"  done {sc['id']:02d} seedance", flush=True)
+            return sc["id"], fit, "seedance"
+        except Exception as e:
+            if not _is_policy_error(e) and not isinstance(e, FalError):
+                # transient / unexpected — still try local so the cut completes
+                print(f"  warn {sc['id']:02d} seedance failed ({type(e).__name__}); local fallback", flush=True)
+            else:
+                print(f"  policy/fallback {sc['id']:02d} ({sc['kind']}) → local motion", flush=True)
+            local_motion_clip(still, fit, shot_dur, sc["kind"])
+            print(f"  done {sc['id']:02d} local", flush=True)
+            return sc["id"], fit, "local_fallback"
 
     results: dict[int, Path] = {}
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
         futures = [pool.submit(animate_one, sc) for sc in scenes]
         for fut in as_completed(futures):
-            sid, path = fut.result()
+            sid, path, method = fut.result()
             results[sid] = path
+            methods[sid] = method
 
     fitted = [results[sc["id"]] for sc in scenes]
-
     OUT.parent.mkdir(parents=True, exist_ok=True)
     print("Assembling full music video…")
     _concat_and_mux(fitted, track, OUT, ass_path=None)
     meta = {
         "title": plan.get("track_title") or plan.get("title") or "Find Me",
         "animated": True,
-        "generator": {"video": "bytedance/seedance-2.0/fast/image-to-video"},
+        "generator": {
+            "video": "bytedance/seedance-2.0/fast/image-to-video",
+            "fallback": "local_ffmpeg_motion",
+        },
+        "methods": {str(k): v for k, v in sorted(methods.items())},
+        "seedance_count": sum(1 for v in methods.values() if v == "seedance"),
+        "local_fallback_count": sum(1 for v in methods.values() if v == "local_fallback"),
         "track": str(track),
         "duration": target,
         "scenes": len(scenes),
         "output": str(OUT),
     }
     OUT.with_suffix(".plan.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    print(f"Wrote animated video: {OUT}")
+    print(
+        f"Wrote {OUT} (seedance={meta['seedance_count']}, "
+        f"local_fallback={meta['local_fallback_count']}, existing={sum(1 for v in methods.values() if v=='existing')})"
+    )
     return 0
 
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +22,8 @@ from music_video.fal_gen import (  # noqa: E402
     fal_available,
     upload_file,
 )
+
+WORKERS = 3
 
 PLAN = ROOT / "examples/find_me/scene_plan.json"
 SCENES = ROOT / "examples/find_me/scenes"
@@ -112,21 +115,19 @@ def main() -> int:
     print(f"Animating {len(scenes)} stills → Seedance I2V for {track.name} ({target:.1f}s)")
 
     CLIPS.mkdir(parents=True, exist_ok=True)
-    fitted: list[Path] = []
-    for i, sc in enumerate(scenes):
+
+    def animate_one(sc: dict) -> tuple[int, Path]:
         still = SCENES / sc["file"]
         if not still.exists():
-            raise SystemExit(f"Missing still: {still}")
+            raise FileNotFoundError(f"Missing still: {still}")
         shot_dur = max(0.5, float(sc["t_end"]) - float(sc["t_start"]))
         raw = CLIPS / f"raw_{sc['id']:02d}.mp4"
         fit = CLIPS / f"fit_{sc['id']:02d}.mp4"
         if fit.exists() and fit.stat().st_size > 50_000:
-            print(f"  skip {sc['id']:02d} ({sc['kind']}, {shot_dur:.1f}s)")
-            fitted.append(fit)
-            continue
-        print(f"  animate {sc['id']:02d}/{len(scenes)} ({sc['kind']}, {shot_dur:.1f}s)…")
+            print(f"  skip {sc['id']:02d} ({sc['kind']}, {shot_dur:.1f}s)", flush=True)
+            return sc["id"], fit
+        print(f"  animate {sc['id']:02d}/{len(scenes)} ({sc['kind']}, {shot_dur:.1f}s)…", flush=True)
         image_url = upload_file(still)
-        # Seedance accepts 4–15s; generate enough motion then fit to shot length
         seed_dur = int(round(min(8.0, max(4.0, shot_dur))))
         animate_image(
             motion_prompt(sc["kind"], sc["beat"]),
@@ -139,7 +140,17 @@ def main() -> int:
             fast=True,
         )
         _fit_clip(raw, fit, shot_dur, WIDTH, HEIGHT)
-        fitted.append(fit)
+        print(f"  done {sc['id']:02d}", flush=True)
+        return sc["id"], fit
+
+    results: dict[int, Path] = {}
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        futures = [pool.submit(animate_one, sc) for sc in scenes]
+        for fut in as_completed(futures):
+            sid, path = fut.result()
+            results[sid] = path
+
+    fitted = [results[sc["id"]] for sc in scenes]
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     print("Assembling full music video…")

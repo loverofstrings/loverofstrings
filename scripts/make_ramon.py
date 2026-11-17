@@ -70,6 +70,31 @@ def motion_prompt(kind: str, beat: str) -> str:
     return f"{base} {role} Scene: {beat}"
 
 
+YOUTUBE_W, YOUTUBE_H = 1920, 1080
+
+
+def frame_for_youtube(src: Path, dest: Path) -> None:
+    """Place a vertical still on a 16:9 canvas without cropping the subject."""
+    from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+
+    im = Image.open(src).convert("RGB")
+    bg = ImageOps.fit(im, (YOUTUBE_W, YOUTUBE_H), method=Image.Resampling.LANCZOS)
+    bg = bg.filter(ImageFilter.GaussianBlur(radius=36))
+    bg = ImageEnhance.Color(bg).enhance(1.4)
+    bg = ImageEnhance.Brightness(bg).enhance(0.48)
+    # Full height, width follows the source so faces and figures stay intact.
+    fg_h = YOUTUBE_H
+    fg_w = max(1, round(im.width * (fg_h / im.height)))
+    if fg_w > YOUTUBE_W:
+        fg_w = YOUTUBE_W
+        fg_h = max(1, round(im.height * (fg_w / im.width)))
+    fg = im.resize((fg_w, fg_h), Image.Resampling.LANCZOS)
+    canvas = bg.copy()
+    canvas.paste(fg, ((YOUTUBE_W - fg_w) // 2, (YOUTUBE_H - fg_h) // 2))
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    canvas.save(dest, quality=93)
+
+
 def curated_hero_paths() -> list[Path]:
     """Likeness refs: prefer committed hero/ set; otherwise seed from uploads."""
     hero_dir = ROOT / "assets/ramon/hero"
@@ -108,7 +133,7 @@ def generate_stills(plan: dict, ref_urls: list[str], scenes_dir: Path) -> list[P
         # Star/supporting: edit with likeness refs. World: pure T2I (cleaner empty scenes).
         urls = ref_urls if sc["kind"] in ("star", "supporting") else None
         print(f"  generating still {sc['id']:02d} ({sc['kind']})…")
-        generate_still(prompt, dest, image_urls=urls, aspect_ratio="9:16", resolution="1K")
+        generate_still(prompt, dest, image_urls=urls, aspect_ratio="16:9", resolution="1K")
         paths.append(dest)
     return paths
 
@@ -137,21 +162,23 @@ def generate_clips(
             image_url=image_url,
             duration=dur,
             resolution="720p",
-            aspect_ratio="9:16",
+            aspect_ratio="16:9",
             generate_audio=False,
             fast=True,
         )
-        _fit_clip(raw, fit, shot.duration, 1080, 1920)
+        _fit_clip(raw, fit, shot.duration, YOUTUBE_W, YOUTUBE_H)
         fitted.append(fit)
     return fitted
 
 
 def main() -> int:
     plan = json.loads((ROOT / "examples/ramon/scene_plan.json").read_text())
-    track = ROOT / "assets/ramon/Ramon.m4a"
+    track = ROOT / "assets/ramon/Ramon.mp3"
+    if not track.is_file():
+        track = ROOT / "assets/ramon/Ramon.m4a"
     lyrics_path = ROOT / "examples/ramon/lyrics.txt"
     scenes_dir = ROOT / "examples/ramon/scenes"
-    out = ROOT / "output/ramon/Ramon_music_video.mp4"
+    out = ROOT / "output/ramon/Ramon_youtube.mp4"
     clips_dir = ROOT / "output/ramon/clips"
 
     user = UserCreativeInput(
@@ -185,18 +212,25 @@ def main() -> int:
                 check=True,
             )
             existing = [scenes_dir / s["file"] for s in plan["scenes"]]
-        preview = ROOT / "output/ramon/Ramon_neon_retrowave.mp4"
+        framed_dir = ROOT / "output/ramon/youtube_stills"
+        framed: list[Path] = []
+        print(f"Framing {len(existing)} stills for YouTube {YOUTUBE_W}x{YOUTUBE_H}…")
+        for src in existing:
+            dest = framed_dir / src.name
+            frame_for_youtube(src, dest)
+            framed.append(dest)
+        preview = ROOT / "output/ramon/Ramon_youtube.mp4"
         fallback_camera_motion_render(
             track=track,
-            images=existing,
+            images=framed,
             lyrics=str(lyrics_path),
             genre="electronic",
             output=preview,
             user=user,
-            width=1080,
-            height=1920,
+            width=YOUTUBE_W,
+            height=YOUTUBE_H,
         )
-        print(f"Wrote neon camera-motion music video: {preview}")
+        print(f"Wrote YouTube music video ({len(framed)} animated stills): {preview}")
         print("Re-run with FAL_KEY for Seedance-animated upgrade.")
         return 0
 
